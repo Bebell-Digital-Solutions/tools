@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,11 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 
-
 <!-- Favicon -->
 <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/b81ca864affb6311afa662ccb36a290aa2a0c9e3.png">
-
-
 
     
     <style>
@@ -226,11 +226,11 @@
                     columnBgOpacity: 1
                 },
                 columns: [
-                    { title: 'Free', imageUrl: 'https://bucket.mlcdn.com/a/3336/3336910/images/5216cd974339593e33ffe905a66cc3a3fb7f6696.png', showImage: true, pricePrefix: '$', priceAmount: '0', priceSuffix: '/mo', badge: '', buttonText: 'Sign Up', buttonUrl: '#', features: ['1 User', '1 Project', 'Basic Features'], showBorder: false, borderWeight: 0 },
-                    { title: 'Startup', imageUrl: 'https://bucket.mlcdn.com/a/3336/3336910/images/ccab9cd4f0957b99b0a2ca8a59af9495a9198aab.png', showImage: true, pricePrefix: '$', priceAmount: '29', priceSuffix: '/mo', badge: '', buttonText: 'Get Started', buttonUrl: '#', features: ['10 Team Members', '5 Projects', 'Basic Analytics', 'Email Support'], showBorder: false, borderWeight: 0 },
-                    { title: 'Business', imageUrl: 'https://bucket.mlcdn.com/a/3336/3336910/images/d7b8bf3900e9e338e73f3a012cab10fea29a062d.png', showImage: true, pricePrefix: '$', priceAmount: '79', priceSuffix: '/mo', badge: 'Most Popular', buttonText: 'Choose Plan', buttonUrl: '#', features: ['50 Team Members', 'Unlimited Projects', 'Advanced Analytics', 'Priority Support', 'API Access'], showBorder: true, borderWeight: 2 },
-                    { title: 'Enterprise', imageUrl: 'https://bucket.mlcdn.com/a/3336/3336910/images/50141a552c7d5aa2e4e7148e3dd551f60dfdd141.png', showImage: true, pricePrefix: '', priceAmount: 'Custom', priceSuffix: '', badge: '', buttonText: 'Contact Us', buttonUrl: '#', features: ['Unlimited Members', 'Dedicated Manager', 'Custom Integrations', '24/7 Support', 'SLA'], showBorder: false, borderWeight: 0 },
-                    { title: 'Agency', imageUrl: 'https://bucket.mlcdn.com/a/3336/3336910/images/86f860b1ba708259fd7ea611ae01365cc9b5b11f.png', showImage: true, pricePrefix: '', priceAmount: 'Custom', priceSuffix: '', badge: '', buttonText: 'Contact Us', buttonUrl: '#', features: ['Unlimited Members', 'Dedicated Manager', 'Custom Integrations', '24/7 Support', 'SLA'], showBorder: false, borderWeight: 0 }
+                    { title: 'Starter', imageUrl: 'https://placehold.co/600x400/E5E7EB/FFF?text=Starter', showImage: true, pricePrefix: '$', priceAmount: '29', priceSuffix: '/mo', badge: '', buttonText: 'Get Started', buttonUrl: '#', features: ['10 Team Members', '5 Projects', 'Basic Analytics', 'Email Support'], showBorder: false, borderWeight: 0 },
+                    { title: 'Business', imageUrl: 'https://placehold.co/600x400/E5E7EB/FFF?text=Business', showImage: true, pricePrefix: '$', priceAmount: '79', priceSuffix: '/mo', badge: 'Most Popular', buttonText: 'Choose Plan', buttonUrl: '#', features: ['50 Team Members', 'Unlimited Projects', 'Advanced Analytics', 'Priority Support', 'API Access'], showBorder: true, borderWeight: 2 },
+                    { title: 'Enterprise', imageUrl: 'https://placehold.co/600x400/E5E7EB/FFF?text=Enterprise', showImage: true, pricePrefix: '', priceAmount: 'Custom', priceSuffix: '', badge: '', buttonText: 'Contact Us', buttonUrl: '#', features: ['Unlimited Members', 'Dedicated Manager', 'Custom Integrations', '24/7 Support', 'SLA'], showBorder: false, borderWeight: 0 },
+                    { title: 'Free', imageUrl: 'https://placehold.co/600x400/E5E7EB/FFF?text=Free', showImage: true, pricePrefix: '$', priceAmount: '0', priceSuffix: '/mo', badge: '', buttonText: 'Sign Up', buttonUrl: '#', features: ['1 User', '1 Project', 'Basic Features'], showBorder: false, borderWeight: 0 },
+                    { title: 'Pro', imageUrl: 'https://placehold.co/600x400/E5E7EB/FFF?text=Pro', showImage: true, pricePrefix: '$', priceAmount: '149', priceSuffix: '/mo', badge: '', buttonText: 'Go Pro', buttonUrl: '#', features: ['Unlimited Projects', 'Advanced Analytics', 'Priority Support', 'API Access', 'Custom Branding'], showBorder: false, borderWeight: 0 }
                 ]
             };
             
@@ -376,8 +376,9 @@
                     const col = config.columns[i]; let priceAmount = col.priceAmount;
                     if (tabIndex === 1 && !isNaN(parseFloat(priceAmount))) { priceAmount = (parseFloat(priceAmount) * 10).toFixed(0); }
                     const columnStyle = `background-color: ${hexToRgba(s.columnBgColor, s.columnBgOpacity)}; ${col.showBorder ? `border: ${col.borderWeight}px solid ${s.borderColor};` : ''}`;
-                    
-                    return `<div class="relative min-w-[330px] w-[350px] max-w-[550px] flex-shrink-0 2xl:w-full pt-4">
+                    const maxWidthClass = config.numColumns >= 3 ? 'max-w-[330px]' : 'max-w-[550px]';
+
+                    return `<div class="relative min-w-[330px] ${maxWidthClass} w-full flex-shrink-0 pt-4">
                         ${col.badge ? `<div class="absolute top-0 left-1/2 -translate-x-1/2 z-10 py-1.5 px-4 text-xs font-semibold rounded-full truncate" style="background-color: var(--primary-color); color: var(--button-text-color); max-width: 120px;">${col.badge}</div>` : ''}
                         <div class="flex flex-col rounded-2xl shadow-lg h-full" style="${columnStyle}">
                             ${col.showImage && col.imageUrl ? `<img src="${col.imageUrl}" alt="${col.title} plan image" class="h-48 w-full object-cover rounded-t-2xl">` : ''}
@@ -395,14 +396,13 @@
                     </div>`;
                 }).join('');
 
-                const tabSwitcher = config.numTabs > 1 ? `<div class="mt-6 flex justify-center"><div class="flex rounded-full p-1" style="background-color: ${hexToRgba(s.primaryColor, 0.1)};">
+                const tabSwitcher = config.numTabs > 1 ? `<div class="mt-6 flex justify-center"><div class="flex rounded-full p-1" style="background-color: ${hexToRgba(s.primaryColor, 0.2)};">
                     <button @click="activeTab = 'tab1'" :style="activeTab === 'tab1' ? { backgroundColor: 'var(--primary-color)', color: 'var(--button-text-color)' } : { color: 'var(--text-primary)' }" class="px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300">${config.tab1Name}</button>
                     <button @click="activeTab = 'tab2'" :style="activeTab === 'tab2' ? { backgroundColor: 'var(--primary-color)', color: 'var(--button-text-color)' } : { color: 'var(--text-primary)' }" class="px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300">${config.tab2Name}</button>
                     </div></div>` : '';
                 
                 const justifyClass = config.numColumns === 1 ? 'justify-center' : '';
-                const gridJustifyClass = config.numColumns === 1 ? '2xl:justify-items-center' : '';
-                const responsiveColsContainer = (tabIndex) => `<div class="isolate mx-auto mt-10"><div class="flex overflow-x-auto ${justifyClass} space-x-8 2xl:space-x-0 2xl:grid 2xl:grid-cols-${config.numColumns} ${gridJustifyClass} 2xl:gap-8 pb-4">${columnsHtml(tabIndex)}</div></div>`;
+                const responsiveColsContainer = (tabIndex) => `<div class="isolate mx-auto mt-10"><div class="flex overflow-x-auto ${justifyClass} space-x-8 pb-4">${columnsHtml(tabIndex)}</div></div>`;
 
                 controls.previewContent.innerHTML = `<div class="py-12 sm:py-16 w-full" style="${cssVars}"><div class="mx-auto w-full px-2.5 md:px-5 lg:px-[30px]" style="max-width: 1200px;" x-data="{ activeTab: 'tab1' }">${headerHtml}${tabSwitcher}<div x-show="activeTab === 'tab1'" x-transition>${responsiveColsContainer(0)}</div>${config.numTabs > 1 ? `<div x-show="activeTab === 'tab2'" x-cloak x-transition>${responsiveColsContainer(1)}</div>` : ''}</div></div>`;
             }
@@ -540,4 +540,6 @@
     </script>
 </body>
 </html>
+
+
 
