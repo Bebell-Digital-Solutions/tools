@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pricing Plans</title><script src="https://cdn.tailwindcss.com"></script><script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script><style>[x-cloak]{display:none!important}</style></head><body><div class="py-12 sm:py-16 w-full"><div class="mx-auto w-full px-2.5 md:px-5 lg:px-[30px]" style="max-width: 1200px;" x-data="{ activeTab: 'tab1' }"><div class="mt-6 flex justify-center"><div class="flex rounded-full p-1">
+                    <button @click="activeTab = 'tab1'" :style="activeTab === 'tab1' ? { backgroundColor: 'var(--primary-color)', color: 'var(--button-text-color)' } : { color: 'var(--text-primary)' }" class="px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300">Monthly</button>
+                    <button @click="activeTab = 'tab2'" :style="activeTab === 'tab2' ? { backgroundColor: 'var(--primary-color)', color: 'var(--button-text-color)' } : { color: 'var(--text-primary)' }" class="px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300">Yearly</button>
+                    </div></div><div x-show="activeTab === 'tab1'" x-transition=""><div class="isolate mx-auto mt-10"><div class="flex overflow-x-auto xl:justify-center space-x-8 pb-4"><div class="relative min-w-[330px] w-[330px] flex-shrink-0 pt-4">
+                        
+                        <div class="flex flex-col rounded-2xl shadow-lg h-full">
+                            <img src="https://bucket.mlcdn.com/a/3336/3336910/images/5216cd974339593e33ffe905a66cc3a3fb7f6696.png" alt="Free plan image" class="h-48 w-full object-cover rounded-t-2xl">
+                            <div class="p-6 sm:p-8 flex flex-col flex-1">
+                                <h3 class="text-xl font-semibold">Free</h3>
+                                <div class="mt-4 flex items-baseline">
+                                    <span class="ml-1 text-xl font-semibold">$</span>
+                                    <span class="text-4xl font-bold tracking-tight">0</span>
+                                    <span class="ml-1 text-xl font-semibold">/mo</span>
+                                </div>
+                                <ul role="list" class="mt-8 space-y-4 flex-1"><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">1 User</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">1 Project</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">Basic Features</span></li></ul>
+                                <a href="#" class="mt-8 block rounded-lg py-3 px-6 text-center text-base font-semibold shadow-sm hover:opacity-90"><span>Sign Up</span></a>
+                            </div>
+                        </div>
+                    </div><div class="relative min-w-[330px] w-[330px] flex-shrink-0 pt-4">
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10 py-1.5 px-4 text-xs font-semibold rounded-full truncate" style="max-width: 120px;">Most Popular</div>
+                        <div class="flex flex-col rounded-2xl shadow-lg h-full" style="border: 2px solid rgb(223, 23, 131);">
+                            <img src="https://bucket.mlcdn.com/a/3336/3336910/images/ccab9cd4f0957b99b0a2ca8a59af9495a9198aab.png" alt="Startup plan image" class="h-48 w-full object-cover rounded-t-2xl">
+                            <div class="p-6 sm:p-8 flex flex-col flex-1">
+                                <h3 class="text-xl font-semibold">Startup</h3>
+                                <div class="mt-4 flex items-baseline">
+                                    <span class="ml-1 text-xl font-semibold">$</span>
+                                    <span class="text-4xl font-bold tracking-tight">29</span>
+                                    <span class="ml-1 text-xl font-semibold">/mo</span>
+                                </div>
+                                <ul role="list" class="mt-8 space-y-4 flex-1"><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">10 Team Members</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">5 Projects</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">Basic Analytics</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">Email Support</span></li></ul>
+                                <a href="#" class="mt-8 block rounded-lg py-3 px-6 text-center text-base font-semibold shadow-sm hover:opacity-90"><span>Get Started</span></a>
+                            </div>
+                        </div>
+                    </div><div class="relative min-w-[330px] w-[330px] flex-shrink-0 pt-4">
+                        
+                        <div class="flex flex-col rounded-2xl shadow-lg h-full" style="border: 0px solid rgb(223, 23, 131);">
+                            <img src="https://bucket.mlcdn.com/a/3336/3336910/images/d7b8bf3900e9e338e73f3a012cab10fea29a062d.png" alt="Business plan image" class="h-48 w-full object-cover rounded-t-2xl">
+                            <div class="p-6 sm:p-8 flex flex-col flex-1">
+                                <h3 class="text-xl font-semibold">Business</h3>
+                                <div class="mt-4 flex items-baseline">
+                                    <span class="ml-1 text-xl font-semibold">$</span>
+                                    <span class="text-4xl font-bold tracking-tight">79</span>
+                                    <span class="ml-1 text-xl font-semibold">/mo</span>
+                                </div>
+                                <ul role="list" class="mt-8 space-y-4 flex-1"><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">50 Team Members</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">Unlimited Projects</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">Advanced Analytics</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">Priority Support</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">API Access</span></li></ul>
+                                <a href="#" class="mt-8 block rounded-lg py-3 px-6 text-center text-base font-semibold shadow-sm hover:opacity-90"><span>Choose Plan</span></a>
+                            </div>
+                        </div>
+                    </div></div></div></div><div x-show="activeTab === 'tab2'" x-transition="" style="display: none;"><div class="isolate mx-auto mt-10"><div class="flex overflow-x-auto xl:justify-center space-x-8 pb-4"><div class="relative min-w-[330px] w-[330px] flex-shrink-0 pt-4">
+                        
+                        <div class="flex flex-col rounded-2xl shadow-lg h-full">
+                            <img src="https://bucket.mlcdn.com/a/3336/3336910/images/5216cd974339593e33ffe905a66cc3a3fb7f6696.png" alt="Free plan image" class="h-48 w-full object-cover rounded-t-2xl">
+                            <div class="p-6 sm:p-8 flex flex-col flex-1">
+                                <h3 class="text-xl font-semibold">Free</h3>
+                                <div class="mt-4 flex items-baseline">
+                                    <span class="ml-1 text-xl font-semibold">$</span>
+                                    <span class="text-4xl font-bold tracking-tight">0</span>
+                                    <span class="ml-1 text-xl font-semibold">/mo</span>
+                                </div>
+                                <ul role="list" class="mt-8 space-y-4 flex-1"><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">1 User</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">1 Project</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">Basic Features</span></li></ul>
+                                <a href="#" class="mt-8 block rounded-lg py-3 px-6 text-center text-base font-semibold shadow-sm hover:opacity-90"><span>Sign Up</span></a>
+                            </div>
+                        </div>
+                    </div><div class="relative min-w-[330px] w-[330px] flex-shrink-0 pt-4">
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 z-10 py-1.5 px-4 text-xs font-semibold rounded-full truncate" style="max-width: 120px;">Most Popular</div>
+                        <div class="flex flex-col rounded-2xl shadow-lg h-full" style="border: 2px solid rgb(223, 23, 131);">
+                            <img src="https://bucket.mlcdn.com/a/3336/3336910/images/ccab9cd4f0957b99b0a2ca8a59af9495a9198aab.png" alt="Startup plan image" class="h-48 w-full object-cover rounded-t-2xl">
+                            <div class="p-6 sm:p-8 flex flex-col flex-1">
+                                <h3 class="text-xl font-semibold">Startup</h3>
+                                <div class="mt-4 flex items-baseline">
+                                    <span class="ml-1 text-xl font-semibold">$</span>
+                                    <span class="text-4xl font-bold tracking-tight">290</span>
+                                    <span class="ml-1 text-xl font-semibold">/mo</span>
+                                </div>
+                                <ul role="list" class="mt-8 space-y-4 flex-1"><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">10 Team Members</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">5 Projects</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">Basic Analytics</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">Email Support</span></li></ul>
+                                <a href="#" class="mt-8 block rounded-lg py-3 px-6 text-center text-base font-semibold shadow-sm hover:opacity-90"><span>Get Started</span></a>
+                            </div>
+                        </div>
+                    </div><div class="relative min-w-[330px] w-[330px] flex-shrink-0 pt-4">
+                        
+                        <div class="flex flex-col rounded-2xl shadow-lg h-full" style="border: 0px solid rgb(223, 23, 131);">
+                            <img src="https://bucket.mlcdn.com/a/3336/3336910/images/d7b8bf3900e9e338e73f3a012cab10fea29a062d.png" alt="Business plan image" class="h-48 w-full object-cover rounded-t-2xl">
+                            <div class="p-6 sm:p-8 flex flex-col flex-1">
+                                <h3 class="text-xl font-semibold">Business</h3>
+                                <div class="mt-4 flex items-baseline">
+                                    <span class="ml-1 text-xl font-semibold">$</span>
+                                    <span class="text-4xl font-bold tracking-tight">790</span>
+                                    <span class="ml-1 text-xl font-semibold">/mo</span>
+                                </div>
+                                <ul role="list" class="mt-8 space-y-4 flex-1"><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">50 Team Members</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">Unlimited Projects</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">Advanced Analytics</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">Priority Support</span></li><li class="flex items-start"><svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M4.5 12.75l6 6 9-13.5"></path></svg><span class="ml-3 text-sm">API Access</span></li></ul>
+                                <a href="#" class="mt-8 block rounded-lg py-3 px-6 text-center text-base font-semibold shadow-sm hover:opacity-90"><span>Choose Plan</span></a>
+                            </div>
+                        </div>
+                    </div></div></div></div></div></div></body></html>
