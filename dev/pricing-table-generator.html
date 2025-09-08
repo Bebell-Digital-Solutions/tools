@@ -269,41 +269,7 @@
             function getFullHtml() {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = controls.previewContent.innerHTML;
-
-                // Remove data-path attributes
                 tempDiv.querySelectorAll('[data-path]').forEach(el => el.removeAttribute('data-path'));
-
-                // Remove CSS variables from the main wrapper
-                const mainWrapper = tempDiv.querySelector('.py-12');
-                if (mainWrapper) {
-                    mainWrapper.removeAttribute('style');
-                }
-
-                // Iterate through all styled elements and remove only color-related properties
-                tempDiv.querySelectorAll('[style]').forEach(el => {
-                    //el.style.removeProperty('color');
-                    // el.style.removeProperty('background-color');
-                    
-                    // The header uses a shorthand 'background' property for the image.
-                    // We want to keep the image but remove any color. So we rebuild the style attribute.
-                    const bgImage = el.style.backgroundImage;
-                    const bgSize = el.style.backgroundSize;
-                    const bgPos = el.style.backgroundPosition;
-
-                    if (bgImage) {
-                         // Clear all styles first
-                        el.removeAttribute('style');
-                        // Re-apply only non-color background properties
-                        el.style.backgroundImage = bgImage;
-                        el.style.backgroundSize = bgSize;
-                        el.style.backgroundPosition = bgPos;
-                    }
-
-                    if (el.getAttribute('style') === '') {
-                        el.removeAttribute('style');
-                    }
-                });
-
                 const cleanedHtml = tempDiv.innerHTML;
                 const alpineCdn = config.numTabs > 1 ? `<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"><\/script>` : '';
                 return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pricing Plans</title><script src="https://cdn.tailwindcss.com"><\/script>${alpineCdn}<style>[x-cloak]{display:none!important}</style></head><body>${cleanedHtml}</body></html>`;
@@ -388,8 +354,8 @@
                 }).join('');
 
                 const tabSwitcher = config.numTabs > 1 ? `<div class="mt-6 flex justify-center"><div class="flex rounded-full p-1" style="background-color: ${hexToRgba(s.primaryColor, 0.2)};">
-                    <button @click="activeTab = 'tab1'" :style="activeTab === 'tab1' ? { backgroundColor: 'var(--primary-color)', color: 'var(--button-text-color)' } : { color: 'var(--text-primary)' }" class="px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300">${config.tab1Name}</button>
-                    <button @click="activeTab = 'tab2'" :style="activeTab === 'tab2' ? { backgroundColor: 'var(--primary-color)', color: 'var(--button-text-color)' } : { color: 'var(--text-primary)' }" class="px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300">${config.tab2Name}</button>
+                    <button @click="activeTab = 'tab1'" :style="activeTab === 'tab1' ? { backgroundColor: 'var(--primary-color)', color: 'var(--button-text-color)' } : { color: 'var(--primary-color)' }" class="px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300">${config.tab1Name}</button>
+                    <button @click="activeTab = 'tab2'" :style="activeTab === 'tab2' ? { backgroundColor: 'var(--primary-color)', color: 'var(--button-text-color)' } : { color: 'var(--primary-color)' }" class="px-5 py-2 text-sm font-semibold rounded-full transition-colors duration-300">${config.tab2Name}</button>
                     </div></div>` : '';
                 
                 const justifyClass = config.numColumns <= 3 ? 'lg:justify-center' : '';
