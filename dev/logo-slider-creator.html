@@ -646,8 +646,13 @@
             });
             controls.imageListControls.addEventListener('click', (e) => {
                 if (e.target.classList.contains('delete-image-btn')) {
-                    state.images.splice(parseInt(e.target.dataset.index, 10), 1);
-                    updateAndSaveState();
+                    const indexToDelete = parseInt(e.target.dataset.index, 10);
+                    if (!isNaN(indexToDelete) && state.images[indexToDelete]) {
+                        state.images.splice(indexToDelete, 1);
+                        // Calling with `false` tells the function to update the UI FROM the state,
+                        // not update the state FROM the UI. This preserves our deletion.
+                        updateAndSaveState(false); 
+                    }
                 }
             });
             controls.manualEditBtn.addEventListener('click', () => controls.imagePaths.classList.toggle('hidden'));
