@@ -641,12 +641,20 @@
         
         function setupEventListeners() {
             document.querySelector('.settings-container').addEventListener('input', () => updateAndSaveState());
+            
             controls.imageListControls.addEventListener('change', (e) => {
-                const index = e.target.dataset.index; if (!index) return;
-                if (e.target.classList.contains('image-control-bg')) state.images[index].removeBg = e.target.checked;
-                if (e.target.classList.contains('image-control-tone')) state.images[index].tone = e.target.value;
-                updateAndSaveState();
+                const index = parseInt(e.target.dataset.index, 10); 
+                if (isNaN(index) || !state.images[index]) return;
+
+                if (e.target.classList.contains('image-control-bg')) {
+                    state.images[index].removeBg = e.target.checked;
+                }
+                if (e.target.classList.contains('image-control-tone')) {
+                    state.images[index].tone = e.target.value;
+                }
+                updateAndSaveState(false); // BUG FIX: Update UI from the modified state
             });
+
             controls.imageListControls.addEventListener('click', (e) => {
                 if (e.target.classList.contains('delete-image-btn')) {
                     const indexToDelete = parseInt(e.target.dataset.index, 10);
@@ -667,7 +675,7 @@
             controls.imageListControls.addEventListener("dragstart",e=>{const t=e.target.closest(".draggable-item");t&&(draggedItemIndex=parseInt(t.dataset.index,10),e.dataTransfer.effectAllowed="move",setTimeout(()=>t.classList.add("dragging"),0))});
             controls.imageListControls.addEventListener("dragend",e=>{const t=e.target.closest(".draggable-item");t&&t.classList.remove("dragging"),document.querySelectorAll(".drag-over").forEach(e=>e.classList.remove("drag-over")),draggedItemIndex=null});
             controls.imageListControls.addEventListener("dragover",e=>{e.preventDefault();const t=e.target.closest(".draggable-item");t&&null!==draggedItemIndex&&parseInt(t.dataset.index,10)!==draggedItemIndex&&(document.querySelectorAll(".drag-over").forEach(e=>e.classList.remove("drag-over")),t.classList.add("drag-over"))});
-            controls.imageListControls.addEventListener("drop",e=>{e.preventDefault();const t=e.target.closest(".draggable-item");if(t&&null!==draggedItemIndex){const o=parseInt(t.dataset.index,10);t.classList.remove("drag-over");const[n]=state.images.splice(draggedItemIndex,1);state.images.splice(o,0,n),updateAndSaveState()}});
+            controls.imageListControls.addEventListener("drop",e=>{e.preventDefault();const t=e.target.closest(".draggable-item");if(t&&null!==draggedItemIndex){const o=parseInt(t.dataset.index,10);t.classList.remove("drag-over");const[n]=state.images.splice(draggedItemIndex,1);state.images.splice(o,0,n),updateAndSaveState(false)}}); // BUG FIX
             
             controls.downloadCodeBtn.addEventListener('click', () => { const html=getFullHtml(),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([html],{type:"text/html"})),a.download="image-slider.html",a.click(),a.remove()});
             controls.generateEmbedBtn.addEventListener('click', async () => {/* GitHub deploy logic can be added here */});
