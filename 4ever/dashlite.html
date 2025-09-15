@@ -172,42 +172,50 @@
                           </div>
                       </div>
 
-                      <!-- Collapsible Settings -->
-                      <details class="themed-bg-primary rounded-lg border themed-border">
-                          <summary class="font-semibold p-3 cursor-pointer flex justify-between items-center">
-                               <span>Personalization Settings</span>
-                               <i data-lucide="chevron-right" class="summary-icon transition-transform"></i>
-                          </summary>
-                          <div class="p-4 border-t themed-border space-y-4">
-                               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                   <div>
-                                       <label for="profile-pic" class="text-sm font-medium themed-text-secondary" data-i18n-key="profilePicture">Profile Picture</label>
-                                       <input type="file" id="profile-pic" accept="image/*" class="mt-1 block w-full text-sm themed-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[var(--primary-color)] file:text-white hover:file:bg-[var(--primary-color-hover)]">
-                                   </div>
-                                    <div>
-                                       <label for="primary-color" class="text-sm font-medium themed-text-secondary" data-i18n-key="primaryColor">Primary Color</label>
-                                       <input type="color" id="primary-color" value="#DF1783" class="mt-1 block w-full h-10 rounded-full border-md cursor-pointer" style="border-radius: 200px;">
-                                   </div>
-                               </div>
-                               <div>
-                                   <span class="text-sm font-medium themed-text-secondary" data-i18n-key="dateTimeFormat">Date/Time Format</span>
-                                   <div class="mt-2 flex space-x-4">
-                                       <label class="flex items-center"><input type="radio" name="time-format" value="12h" class="form-radio text-[var(--primary-color)] focus:ring-[var(--primary-color)]" checked><span class="ml-2">12-hour</span></label>
-                                       <label class="flex items-center"><input type="radio" name="time-format" value="24h" class="form-radio text-[var(--primary-color)] focus:ring-[var(--primary-color)]"><span class="ml-2">24-hour</span></label>
-                                   </div>
-                               </div>
-                               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                   <div>
-                                       <span class="text-sm font-medium themed-text-secondary" data-i18n-key="theme">Theme</span>
-                                       <button id="onboarding-theme-toggle" class="mt-2 w-full themed-bg-tertiary font-semibold py-2 px-4 rounded-md" data-i18n-key="toggleTheme">Toggle Light/Dark</button>
-                                   </div>
-                                   <div>
-                                       <span class="text-sm font-medium themed-text-secondary" data-i18n-key="language">Language</span>
-                                       <button id="onboarding-lang-toggle" class="mt-2 w-full themed-bg-tertiary font-semibold py-2 px-4 rounded-md" data-i18n-key="translateToSpanish">Translate to Spanish</button>
-                                   </div>
-                               </div>
-                          </div>
-                      </details>
+<!-- Collapsible Settings -->
+<details class="themed-bg-primary rounded-lg border themed-border">
+    <summary class="font-semibold p-3 cursor-pointer flex justify-between items-center">
+        <span>Personalization Settings</span>
+        <i data-lucide="chevron-right" class="summary-icon transition-transform"></i>
+    </summary>
+    <div class="p-4 border-t themed-border space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="profile-pic" class="text-sm font-medium themed-text-secondary" data-i18n-key="profilePicture">Profile Picture</label>
+                <input type="file" id="profile-pic" accept="image/*" class="mt-1 block w-full text-sm themed-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[var(--primary-color)] file:text-white hover:file:bg-[var(--primary-color-hover)]">
+            </div>
+            <div>
+                <label for="primary-color" class="text-sm font-medium themed-text-secondary" data-i18n-key="primaryColor">Primary Color</label>
+                <div class="relative mt-1">
+                    <!-- Hidden color input -->
+                    <input type="color" id="primary-color" value="#DF1783" class="absolute opacity-0 w-full h-10 z-10 cursor-pointer">
+                    <!-- Custom pill-shaped display -->
+                    <div id="color-picker-display" class="w-full h-10 rounded-full cursor-pointer flex items-center justify-center text-white font-semibold text-sm" style="background-color: #DF1783;">
+                        <i data-lucide="palette" class="w-4 h-4 mr-1"></i>
+                        <span>Select Color</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <span class="text-sm font-medium themed-text-secondary" data-i18n-key="dateTimeFormat">Date/Time Format</span>
+            <div class="mt-2 flex space-x-4">
+                <label class="flex items-center"><input type="radio" name="time-format" value="12h" class="form-radio text-[var(--primary-color)] focus:ring-[var(--primary-color)]" checked><span class="ml-2">12-hour</span></label>
+                <label class="flex items-center"><input type="radio" name="time-format" value="24h" class="form-radio text-[var(--primary-color)] focus:ring-[var(--primary-color)]"><span class="ml-2">24-hour</span></label>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <span class="text-sm font-medium themed-text-secondary" data-i18n-key="theme">Theme</span>
+                <button id="onboarding-theme-toggle" class="mt-2 w-full themed-bg-tertiary font-semibold py-2 px-4 rounded-md" data-i18n-key="toggleTheme">Toggle Light/Dark</button>
+            </div>
+            <div>
+                <span class="text-sm font-medium themed-text-secondary" data-i18n-key="language">Language</span>
+                <button id="onboarding-lang-toggle" class="mt-2 w-full themed-bg-tertiary font-semibold py-2 px-4 rounded-md" data-i18n-key="translateToSpanish">Translate to Spanish</button>
+            </div>
+        </div>
+    </div>
+</details>
                  </div>
 
                  <button id="save-launch-btn" class="w-full primary-bg font-bold py-3 px-4 rounded-lg mt-6" data-i18n-key="saveAndLaunch">Save & Launch</button>
@@ -1045,6 +1053,34 @@
             }
         });
     </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Custom color picker functionality
+        const colorInput = document.getElementById('primary-color');
+        const colorDisplay = document.getElementById('color-picker-display');
+        
+        // Update display when color changes
+        colorInput.addEventListener('input', function() {
+            colorDisplay.style.backgroundColor = colorInput.value;
+        });
+        
+        // Forward click to the hidden input
+        colorDisplay.addEventListener('click', function() {
+            colorInput.click();
+        });
+        
+        // Initialize with the correct color
+        colorDisplay.style.backgroundColor = colorInput.value;
+    });
+</script>
+
+
+
+
+
+
+    
 </body>
 </html>
 
