@@ -245,14 +245,11 @@
         
         /* --- Sidebar Logo/Icon Management --- */
         #sidebar-full-logo { display: block; }
-        #sidebar-icon-logo { display: none; margin: 0 auto; } /* Centering collapsed icon */
+        /* Hiding this when the sidebar is open, and also completely when the sidebar is collapsed as requested */
+        #sidebar-icon-logo { display: none !important; } 
 
         .sidebar:not(.sidebar-open) #sidebar-full-logo { display: none; }
-        .sidebar:not(.sidebar-open) #sidebar-icon-logo {
-            display: block;
-            width: 40px;
-            height: 40px;
-        }
+        
         /* New CSS for the Close Button position (absolute top right of sidebar content) */
         #sidebar-close-btn {
             position: absolute;
@@ -268,27 +265,23 @@
             display: none;
         }
         /* Hide logo when sidebar is open to show full logo */
-        .sidebar.sidebar-open #sidebar-icon-logo { display: none; }
+        .sidebar.sidebar-open #sidebar-icon-logo { display: none !important; }
 
         /* Collapsed Sidebar Footer Styling */
-/* Collapsed Sidebar Footer Styling */
-.sidebar:not(.sidebar-open) .sidebar-footer-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem 0;
-}
-.sidebar:not(.sidebar-open) .sidebar-footer-content > div {
-    display: none; /* Hide text elements */
-}
-.sidebar:not(.sidebar-open) .sidebar-footer-content > img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    /* Ensure the avatar is visible */
-    display: block !important;
-}
-
+        .sidebar:not(.sidebar-open) .sidebar-footer-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        .sidebar:not(.sidebar-open) .sidebar-footer-content > div {
+            display: none; /* Hide text elements */
+        }
+        .sidebar:not(.sidebar-open) .sidebar-footer-content > img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
 
 
         /* Hide default Google Translate bar at the top, but allow widget itself */
@@ -304,6 +297,43 @@
         .sidebar-item-active p {
             color: var(--title-color);
         }
+        
+        /* --- Custom Report Styles (To enforce light theme look) --- */
+        .case-study-report {
+            /* This div simulates the body/wrapper from the case study HTML */
+            background-color: #ffffff; 
+            color: #1f2937;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+        .case-study-report .chat-bubble {
+            background-color: #e2e8f0; /* Flavia light gray */
+            color: #1f2937;
+        }
+        .case-study-report .nfc-bubble {
+            background-color: #3b82f6; /* NFC blue */
+            color: white;
+        }
+        .case-study-report h1, .case-study-report h2, .case-study-report h3 {
+            color: #1f2937;
+        }
+        /* Specific coloring for the custom boxes */
+        .case-study-report .report-red-flag-box {
+            background-color: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+        }
+        .case-study-report .report-recommendation-box {
+            background-color: #f0fdf4; /* Light green */
+            border-left: 4px solid #16a34a; /* Green */
+        }
+        .case-study-report .report-formula-score {
+            background-color: #e5e7eb; /* Light gray for score row */
+        }
+        .case-study-report .report-score-row-border {
+            border-color: #d1d5db; /* Lighter border for score rows */
+        }
     </style>
 </head>
 <body class="min-h-screen flex antialiased dark-mode">
@@ -312,13 +342,17 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, serverTimestamp, deleteDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, serverTimestamp, deleteDoc, getDocs, writeBatch, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // IMPORTANT: Global variables for Firebase configuration (provided by Canvas environment)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // Default avatar image (used if none is uploaded)
+        const DEFAULT_AVATAR = "https://placehold.co/40x40/ff5011/white?text=U"; 
+
 
         let app, db, auth;
         let globalUserId = null;
@@ -328,8 +362,11 @@
         window.appState = {
             conversations: [],
             currentConversation: null,
-            // Theme is fixed to 'dark' now. Removed from state.
-            settings: { apiKey: "", username: "Lead Analyst" },
+            settings: { 
+                apiKey: "", 
+                username: "Lead Analyst",
+                profilePictureBase64: DEFAULT_AVATAR // Stores Base64 string or default URL
+            },
             isAuthReady: false,
             geminiApiKey: ""
         };
@@ -377,6 +414,17 @@
             }
         } else {
              document.getElementById('loading-state').innerHTML = '<div class="text-yellow-500 p-4">Firebase config not found. Data persistence is disabled.</div>';
+             
+             // --- FIX: Proceed to main app view even without config ---
+             globalUserId = 'persistence-disabled-user';
+             window.appState.isAuthReady = true;
+             
+             // Hide loading screen after a short delay so the user can read the message
+             setTimeout(() => {
+                 document.getElementById('loading-state').style.opacity = '0';
+                 setTimeout(() => { document.getElementById('loading-state').style.display = 'none'; }, 300);
+             }, 1000);
+             // --- END FIX ---
         }
 
         // Firestore Paths
@@ -386,7 +434,7 @@
         // --- Data Loading and Saving Functions ---
 
         async function loadUserSettings() {
-            if (!globalUserId) return;
+            if (!globalUserId || !db) return;
             const docRef = getUserSettingsDocRef(globalUserId);
             const docSnap = await getDoc(docRef);
 
@@ -394,9 +442,9 @@
                 const settings = docSnap.data();
                 window.appState.settings = {
                     ...window.appState.settings,
-                    // Only merge necessary settings, ignoring saved 'theme'
                     apiKey: settings.apiKey || "",
-                    username: settings.username || "Lead Analyst"
+                    username: settings.username || "Lead Analyst",
+                    profilePictureBase64: settings.profilePictureBase64 || DEFAULT_AVATAR
                 };
             }
 
@@ -410,13 +458,17 @@
         }
 
         window.saveUserSettings = async () => {
-            if (!globalUserId) return;
+            if (!globalUserId || !db) {
+                document.getElementById('save-status').textContent = 'Error: Persistence is disabled.';
+                return;
+            }
             const settingsModal = document.getElementById('settings-modal');
             const apiKey = settingsModal.querySelector('#api-key-input').value.trim();
             const username = settingsModal.querySelector('#username-input').value.trim() || "Lead Analyst";
+            const profilePictureBase64 = window.appState.settings.profilePictureBase64 || DEFAULT_AVATAR;
 
-            // Only save API key and username
-            const newSettings = { apiKey, username };
+            // Save API key, username, and profile picture
+            const newSettings = { apiKey, username, profilePictureBase64 };
 
             try {
                 const docRef = getUserSettingsDocRef(globalUserId);
@@ -429,25 +481,60 @@
                 setTimeout(() => document.getElementById('save-status').textContent = '', 3000);
 
                 updateMainViewVisibility(); 
-
+                updateSettingsUI(); // Ensure UI reflects saved state
             } catch (e) {
                 console.error("Error saving settings:", e);
                 document.getElementById('save-status').textContent = 'Error saving settings.';
             }
         };
 
+        window.handleProfilePictureUpload = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Simple size check (limit to 500KB to prevent oversized Firestore documents)
+            if (file.size > 500 * 1024) {
+                alert('Image file is too large. Please select an image under 500KB.');
+                event.target.value = null; // Reset file input
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64Image = e.target.result;
+                
+                // Update local state and UI immediately (save is handled by explicit button click)
+                window.appState.settings.profilePictureBase64 = base64Image;
+                
+                // Update the avatar previews in the modal and sidebar
+                document.querySelectorAll('.user-avatar-display').forEach(img => {
+                    img.src = base64Image;
+                });
+
+                document.getElementById('upload-status').textContent = 'Image loaded! Click "Save Settings" to confirm.';
+            };
+            reader.readAsDataURL(file);
+        };
+
         window.updateSettingsUI = () => {
             const settings = window.appState.settings;
             const settingsModal = document.getElementById('settings-modal');
+            
+            // Update username in modal and sidebar
             if (settingsModal) {
                 settingsModal.querySelector('#api-key-input').value = settings.apiKey;
                 settingsModal.querySelector('#username-input').value = settings.username;
             }
             document.getElementById('sidebar-username-display').textContent = settings.username;
+            
+            // Update all avatar images
+            document.querySelectorAll('.user-avatar-display').forEach(img => {
+                img.src = settings.profilePictureBase64 || DEFAULT_AVATAR;
+            });
         };
 
         function setupConversationsListener() {
-            if (!globalUserId) return;
+            if (!globalUserId || !db) return;
             const q = query(getConversationsCollectionRef(globalUserId), orderBy("timestamp", "desc"));
 
             onSnapshot(q, (snapshot) => {
@@ -463,7 +550,7 @@
         }
 
         window.saveConversation = async (conversation) => {
-            if (!globalUserId) return;
+            if (!globalUserId || !db) return conversation;
             const conversationsRef = getConversationsCollectionRef(globalUserId);
 
             try {
@@ -471,15 +558,21 @@
                     const docRef = doc(conversationsRef, conversation.id);
                     await setDoc(docRef, {
                         ...conversation,
+                        isSaved: true,
                         timestamp: serverTimestamp()
                     }, { merge: true });
                 } else {
                     const newDoc = await addDoc(conversationsRef, {
                         ...conversation,
+                        isSaved: true,
                         timestamp: serverTimestamp()
                     });
                     conversation.id = newDoc.id;
                 }
+                // Mark locally as saved
+                window.appState.currentConversation.isSaved = true; 
+                window.updateSaveButtonVisibility();
+
                 return conversation;
             } catch (e) {
                 console.error("Error saving conversation:", e);
@@ -488,7 +581,7 @@
         };
 
         window.deleteConversation = async (id) => {
-            if (!globalUserId) return;
+            if (!globalUserId || !db) return;
             try {
                 await deleteDoc(doc(getConversationsCollectionRef(globalUserId), id));
                 if (window.appState.currentConversation?.id === id) {
@@ -500,7 +593,10 @@
         };
 
         window.eraseAllData = async () => {
-            if (!globalUserId) return;
+            if (!globalUserId || !db) {
+                document.getElementById('erase-status').textContent = 'Error: Persistence is disabled.';
+                return;
+            }
             if (!confirm("ARE YOU ABSOLUTELY SURE? This will permanently delete ALL your saved conversations and settings!")) {
                 return;
             }
@@ -518,7 +614,7 @@
 
                 // Clear local state
                 window.appState.conversations = [];
-                window.appState.settings = { apiKey: "", username: "Lead Analyst" };
+                window.appState.settings = { apiKey: "", username: "Lead Analyst", profilePictureBase64: DEFAULT_AVATAR };
                 window.appState.geminiApiKey = "";
                 document.body.classList.remove('light-mode');
                 document.body.classList.add('dark-mode');
@@ -534,6 +630,19 @@
             }
         };
 
+        /**
+         * Basic HTML Escape function to prevent XSS from AI output or user transcripts.
+         */
+        function escapeHtml(text) {
+            if (typeof text !== 'string') return text;
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
 
         // --- UI Rendering Functions ---
 
@@ -542,32 +651,38 @@
             if (!sidebarList) return;
 
             sidebarList.innerHTML = '';
-            window.appState.conversations.forEach(conv => {
-                const isActive = window.appState.currentConversation && window.appState.currentConversation.id === conv.id;
-                const title = conv.title || conv.transcript.substring(0, 30).trim() + '...';
+            // Only render list if persistence is enabled (db is available)
+            if (db) {
+                window.appState.conversations.forEach(conv => {
+                    const isActive = window.appState.currentConversation && window.appState.currentConversation.id === conv.id;
+                    const title = conv.title || conv.transcript.substring(0, 30).trim() + '...';
 
-                const li = document.createElement('li');
-                li.className = `p-2 my-1 rounded-lg transition duration-150 ease-in-out cursor-pointer flex justify-between items-center ${isActive ? 'sidebar-item-active shadow-md' : 'hover:bg-mirage-color/50'}`;
-                li.onclick = () => window.loadConversation(conv.id);
-                li.innerHTML = `
-                    <p class="text-sm font-medium text-title-color truncate">${title}</p>
-                    <button class="text-red-400 hover:text-red-600 p-1 rounded-full ${isActive ? 'text-white' : ''}" onclick="event.stopPropagation(); window.deleteConversation('${conv.id}');">
-                        <i class="fas fa-trash-alt text-xs"></i>
-                    </button>
-                `;
-                sidebarList.appendChild(li);
-            });
+                    const li = document.createElement('li');
+                    li.className = `p-2 my-1 rounded-lg transition duration-150 ease-in-out cursor-pointer flex justify-between items-center ${isActive ? 'sidebar-item-active shadow-md' : 'hover:bg-mirage-color/50'}`;
+                    li.onclick = () => window.loadConversation(conv.id);
+                    li.innerHTML = `
+                        <p class="text-sm font-medium text-title-color truncate">${escapeHtml(title)}</p>
+                        <button class="text-red-400 hover:text-red-600 p-1 rounded-full ${isActive ? 'text-white' : ''}" onclick="event.stopPropagation(); window.deleteConversation('${conv.id}');">
+                            <i class="fas fa-trash-alt text-xs"></i>
+                        </button>
+                    `;
+                    sidebarList.appendChild(li);
+                });
+            } else {
+                 sidebarList.innerHTML = `<li class="p-2 text-xs text-text-color opacity-70">Conversation history is disabled.</li>`;
+            }
         };
 
         window.loadConversation = (id) => {
             const conv = window.appState.conversations.find(c => c.id === id);
             if (conv) {
-                window.appState.currentConversation = conv;
+                window.appState.currentConversation = { ...conv, isSaved: true };
                 document.getElementById('main-transcript-input').value = conv.transcript || '';
 
                 window.updateMainViewVisibility();
                 if (conv.report) {
                     document.getElementById('report-content-display').innerHTML = window.generateReportHTML(conv.report, conv.transcript);
+                    window.animateCounter('score-counter-display', conv.report.qualificationScore || 0, 500); // Re-run animation
                     document.getElementById('report-view').scrollTop = 0;
                 }
                 renderSidebar();
@@ -577,9 +692,10 @@
         window.newConversation = () => {
             window.appState.currentConversation = {
                 id: null,
-                title: "New Analysis",
+                title: "New Report",
                 transcript: "",
-                report: null
+                report: null,
+                isSaved: true, // Mark as saved if no report exists yet
             };
             document.getElementById('main-transcript-input').value = '';
             document.getElementById('report-content-display').innerHTML = '';
@@ -608,13 +724,22 @@
         };
 
 
+        window.updateSaveButtonVisibility = () => {
+            const saveButton = document.getElementById('save-report-button');
+            const currentConv = window.appState.currentConversation;
+            
+            if (saveButton) {
+                // Show button if a report exists and it hasn't been saved yet (id is null or isSaved is false)
+                const shouldShow = currentConv && currentConv.report && !currentConv.isSaved;
+                saveButton.style.display = shouldShow ? 'block' : 'none';
+            }
+        };
+
         window.updateMainViewVisibility = () => {
              const hasReport = window.appState.currentConversation && window.appState.currentConversation.report;
              const welcomeView = document.getElementById('welcome-view');
              const reportView = document.getElementById('report-view');
              const inputContainer = document.getElementById('main-input-container');
-             
-             // Dynamic Greeting logic removed as requested (text is fixed in HTML)
              
              if (hasReport) {
                  welcomeView.classList.add('hidden');
@@ -625,92 +750,227 @@
                  reportView.classList.add('hidden');
                  inputContainer.classList.remove('fixed-bottom'); // Switch to inline position
              }
+
+             window.updateSaveButtonVisibility(); // Update button visibility on view change
         };
 
+        window.saveCurrentReport = async () => {
+            const currentConv = window.appState.currentConversation;
+            if (!currentConv || !currentConv.report) {
+                alert('No report has been generated to save.');
+                return;
+            }
+
+            const defaultTitle = `Report - ${currentConv.report.prospectName} (${currentConv.report.finalVerdict}) - ${new Date().toLocaleDateString()}`;
+            const customTitle = prompt("Enter a custom title for this report:", defaultTitle);
+
+            if (customTitle === null) {
+                return; // User canceled the prompt
+            }
+            
+            currentConv.title = customTitle.trim() || defaultTitle;
+            
+            document.getElementById('save-report-button').disabled = true;
+            document.getElementById('save-report-button').textContent = 'Saving...';
+            
+            await window.saveConversation(currentConv);
+
+            document.getElementById('save-report-button').textContent = 'Saved!';
+            document.getElementById('save-report-button').disabled = false;
+        };
+
+
+        /**
+         * Function to animate a counter from 0 to a target value.
+         * @param {string} targetId - The ID of the HTML element to update.
+         * @param {number} targetValue - The final value of the counter.
+         * @param {number} duration - The duration of the animation in milliseconds.
+         */
+        window.animateCounter = (targetId, targetValue, duration) => {
+            const obj = document.getElementById(targetId);
+            if (!obj) return;
+            
+            let startTimestamp = null;
+            const startValue = 0;
+
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                
+                const currentValue = Math.floor(progress * (targetValue - startValue) + startValue);
+                obj.innerHTML = currentValue;
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+
+            window.requestAnimationFrame(step);
+        }
+
         window.generateReportHTML = (report, transcript) => {
-            const { overallScore, finalVerdict, summary, scores } = report;
+            const { overallScore, finalVerdict, summary, scores, redFlags, prospectName, recommendations } = report;
+            const qualificationScore = Math.round(overallScore * 20); // Scale 1-5 to 0-100
 
-            const scoreToText = (score) => {
-                if (score >= 4.5) return 'HIGH';
-                if (score >= 3.5) return 'GOOD';
-                if (score >= 2.5) return 'MODERATE';
-                if (score >= 1.5) return 'LOW';
-                return 'MISSING';
-            };
-
-            const scoreToColor = (score) => {
-                if (score >= 4) return 'text-green-400';
-                if (score >= 3) return 'text-yellow-400';
-                if (score >= 2) return 'text-orange-400';
-                return 'text-red-400';
-            };
-
-            const renderScoreRow = (key, data) => `
-                <div class="p-4 rounded-lg shadow-md" style="background-color: var(--mirage-color); border: 1px solid var(--mirage-color)">
-                    <div class="score-row" style="border-bottom: 2px solid var(--mirage-color)">
-                        <div class="font-bold text-lg text-title-color">${key.toUpperCase()} (${data.score}/5)</div>
-                        <div class="text-lg ${scoreToColor(data.score)} font-extrabold">${scoreToText(data.score)}</div>
-                    </div>
-                    <div class="my-3 text-sm text-text-color">${data.comment}</div>
-                    <div class="highlight-box p-3 rounded-lg" style="background-color: var(--box-color); border-color: var(--skin-color)">
-                        <p class="font-mono text-xs italic opacity-80 text-red-300 mb-1">Supporting Quote:</p>
-                        <p class="text-sm text-title-color">${data.supportingQuote}</p>
-                    </div>
-                </div>
-            `;
-
+            // Helper to render the transcript with highlighting/styling (simplified for case study)
             const transcriptToHtml = (text) => {
-                return text.split('\n').map(line => {
+                const lines = text.split('\n');
+                let html = '';
+                
+                // Track which quotes from redFlags have been used to avoid duplication or placing flags randomly
+                const usedQuotes = new Set(); 
+
+                lines.forEach((line) => {
                     const match = line.match(/^(\w+):\s*(.*)/);
+                    
                     if (match) {
                         const [full, speaker, content] = match;
-                        const speakerClass = speaker.toLowerCase().includes('agent') || speaker.toLowerCase().includes('nfc') ? 'nfc-bubble' : 'flavia-bubble';
-                        return `<div class="flex ${speakerClass === 'nfc-bubble' ? 'justify-end' : 'justify-start'}">
-                                    <div class="chat-bubble ${speakerClass} text-sm">${content}</div>
-                                </div>`;
+                        // Sanitize speaker and content
+                        const safeSpeaker = escapeHtml(speaker);
+                        const safeContent = escapeHtml(content);
+                        
+                        const speakerClass = safeSpeaker.toLowerCase().includes('agent') || safeSpeaker.toLowerCase().includes('nfc') ? 'nfc-bubble' : 'flavia-bubble';
+                        
+                        html += `
+                            <div class="flex ${speakerClass === 'nfc-bubble' ? 'justify-end' : 'justify-start'}">
+                                <div class="chat-bubble ${speakerClass} text-sm">${safeContent}</div>
+                            </div>
+                        `;
+
+                        // Add red flag boxes after the corresponding quote
+                        // Note: supportingQuote is also from AI, so it needs to be matched against original content carefully. 
+                        // Simple inclusion check is used here.
+                        const flag = redFlags.find(flag => content.includes(flag.supportingQuote) && !usedQuotes.has(flag.supportingQuote));
+                        if (flag) {
+                            usedQuotes.add(flag.supportingQuote);
+                            html += `
+                                <div class="report-red-flag-box p-4 rounded-lg mt-4 mb-4 shadow">
+                                    <p class="font-semibold text-red-800"><i class="fas fa-triangle-exclamation mr-2"></i>RED FLAG: ${escapeHtml(flag.name)}</p>
+                                    <p class="text-sm mt-1">${escapeHtml(flag.comment)}</p>
+                                </div>
+                            `;
+                        }
+                    } else if (line.trim()) {
+                        // Non-speaker lines in the middle
+                        html += `<div class="text-xs text-gray-600 my-1 text-center">${escapeHtml(line)}</div>`;
                     }
-                    return `<div class="text-xs text-gray-600 my-1 text-center">${line}</div>`;
-                }).join('');
+                });
+                return html;
             };
 
+            // Helper to get recommendation text (simulating the dynamic output)
+            const getRecommendation = (type) => {
+                const rec = recommendations.find(r => r.type === type);
+                return rec ? escapeHtml(rec.script) : `No specific recommendation script available for ${escapeHtml(type)}.`;
+            };
+            
+            // Helper for the BANT rows
+            const renderBantScoreRow = (key, data, baseScore) => {
+                const isRed = data.score < 3;
+                // Simple proportional score impact for visualization
+                const scoreImpact = Math.round((data.score / 5) * baseScore); 
+                // FIX: Corrected ternary operator structure
+                const impactSign = data.score < 3 ? '-' : '+'; 
+                const impactColor = data.score < 3 ? 'text-red-600' : 'text-green-600';
+                
+                return `
+                    <div class="score-row report-score-row-border" style="border-color: #e5e7eb;">
+                        <span class="w-1/2">${key.charAt(0).toUpperCase() + key.slice(1)}: ${escapeHtml(data.comment)}</span>
+                        <span class="w-1/4 text-center ${impactColor} font-semibold">${impactSign}${Math.abs(scoreImpact)}</span>
+                        <span class="w-1/4 text-center text-gray-700">${data.score}/5</span>
+                    </div>
+                `;
+            };
 
             return `
-                <div class="max-w-4xl mx-auto space-y-8 pb-10">
-                    <div class="text-center">
-                        <h2 class="text-4xl font-extrabold text-title-color">Lead Qualification Report</h2>
-                        <p class="text-text-color mt-2">Analysis generated by Gemini AI</p>
-                    </div>
+            <div class="max-w-6xl mx-auto case-study-report shadow-xl rounded-xl p-6 md:p-10">
+                <header class="mb-8 border-b pb-4 border-gray-200">
+                    <h1 class="text-3xl font-extrabold text-gray-800">Lead Qualification Report: Prospect Analysis</h1>
+                    <p class="text-xl text-gray-500 mt-2">${escapeHtml(prospectName || 'Unidentified Prospect')} vs. LeadLens AI</p>
 
-                    <!-- Overall Score & Verdict -->
-                    <div class="p-6 rounded-xl shadow-xl border" style="background-color: var(--box-color); border-color: var(--mirage-color)">
-                        <div class="flex justify-between items-center mb-4">
-                            <div>
-                                <p class="text-sm font-medium text-text-color">Overall Qualification Score</p>
-                                <p class="text-5xl font-black ${scoreToColor(overallScore)}">${overallScore.toFixed(1)}/5.0</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm font-medium text-text-color">Final Verdict</p>
-                                <p class="text-2xl font-bold text-title-color">${finalVerdict}</p>
-                            </div>
+                    <!-- Qualification Score Banner with Animation -->
+                    <div class="mt-6 p-4 bg-red-600 rounded-lg text-white flex items-center justify-between shadow-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-chart-line text-2xl mr-3"></i>
+                            <span class="text-lg font-medium">Qualification Score (${escapeHtml(finalVerdict)})</span>
                         </div>
-                        <p class="text-base leading-relaxed text-text-color mt-4">${summary}</p>
+                        <div class="flex items-end">
+                            <span id="score-counter-display" class="text-5xl font-extrabold leading-none">${qualificationScore}</span>
+                            <span class="text-2xl font-semibold ml-1 leading-none">/100</span>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="grid md:grid-cols-3 gap-8 mb-12">
+                    <!-- Overall Summary -->
+                    <div class="bg-blue-50 p-6 rounded-lg shadow-md border-t-4 border-blue-600 flex flex-col items-start md:col-span-3">
+                        <i class="fas fa-search-dollar text-3xl text-blue-600 mb-3"></i>
+                        <h2 class="text-xl font-semibold mb-2 text-blue-800">Analyst Summary: ${escapeHtml(finalVerdict)}</h2>
+                        <p class="text-gray-600">${escapeHtml(summary)}</p>
+                    </div>
+                </section>
+
+                <!-- BANT Scoring Section -->
+                <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2 border-gray-200"><i class="fas fa-calculator mr-2 text-green-600"></i>BANT Qualification Breakdown</h2>
+
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Qualification Scoring Matrix</h3>
+                    <div class="font-bold text-sm text-gray-700 score-row border-b-2 border-gray-300">
+                        <span class="w-1/2">BANT Factor & Commentary</span>
+                        <span class="w-1/4 text-center">Score Impact</span>
+                        <span class="w-1/4 text-center">AI Score (1-5)</span>
                     </div>
 
-                    <!-- BANT Breakdown -->
-                    <h3 class="text-2xl font-semibold text-title-color pt-4">BANT Breakdown</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        ${renderScoreRow('Budget', scores.budget)}
-                        ${renderScoreRow('Authority', scores.authority)}
-                        ${renderScoreRow('Need', scores.need)}
-                        ${renderScoreRow('Timeline', scores.timeline)}
-                    </div>
-
-                    <!-- Transcript Visualization -->
-                    <h3 class="text-2xl font-semibold text-title-color pt-4 border-t" style="border-color: var(--mirage-color)">Original Transcript</h3>
-                    <div class="p-6 rounded-xl shadow-inner max-h-96 overflow-y-auto border" style="background-color: var(--body-color); border-color: var(--mirage-color)">
-                        ${transcriptToHtml(transcript)}
+                    ${renderBantScoreRow('budget', scores.budget, 25)}
+                    ${renderBantScoreRow('authority', scores.authority, 25)}
+                    ${renderBantScoreRow('need', scores.need, 25)}
+                    ${renderBantScoreRow('timeline', scores.timeline, 25)}
+                    
+                    <div class="score-row bg-gray-200 font-extrabold mt-2 rounded-lg">
+                        <span class="w-1/2 text-gray-800">CUMULATIVE SCORE</span>
+                        <span class="w-1/4 text-center text-gray-800"></span>
+                        <span class="w-1/4 text-center text-red-600 font-extrabold">${qualificationScore}/100</span>
                     </div>
                 </div>
+
+                <!-- Conversation Timeline Section -->
+                <h2 class="text-2xl font-bold mt-12 mb-6 text-gray-800 border-b pb-2 border-gray-200">Conversation Timeline & Key Events</h2>
+
+                <div id="timeline-container" class="space-y-6">
+                    <!-- Transcript with embedded red flags -->
+                    ${transcriptToHtml(transcript)}
+                </div>
+
+                <!-- Recommendations Section -->
+                <section class="mt-12 pt-8 border-t border-gray-200">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800"><i class="fas fa-lightbulb mr-2 text-yellow-600"></i>Recommended Scripts</h2>
+                    <p class="mb-6 text-gray-600">Use these scripts for consistent boundary enforcement based on the behavioral patterns identified in this conversation.</p>
+
+                    <!-- Recommendation 1: Free Work -->
+                    <div class="p-4 report-recommendation-box rounded-lg mb-4 shadow" style="background-color: #fef2f2; border-left-color: #ef4444;">
+                        <p class="font-bold text-red-800 mb-1"><i class="fas fa-hand-holding-dollar mr-2"></i>Pattern: Demanding Free Design/Mock-up (Red Flag)</p>
+                        <p class="font-mono text-sm bg-white p-3 rounded">
+                            **"${getRecommendation('free_work')}"**
+                        </p>
+                    </div>
+
+                    <!-- Recommendation 2: Price Before Data -->
+                    <div class="p-4 report-recommendation-box rounded-lg mb-4 shadow" style="background-color: #fffbeb; border-left-color: #f59e0b;">
+                        <p class="font-bold text-yellow-800 mb-1"><i class="fas fa-tag mr-2"></i>Pattern: Price Before Qualification Data (Red Flag)</p>
+                        <p class="font-mono text-sm bg-white p-3 rounded">
+                            **"${getRecommendation('price_first')}"**
+                        </p>
+                    </div>
+                    
+                    <!-- Recommendation 3: Nurturing/Process Reminder -->
+                    <div class="p-4 report-recommendation-box rounded-lg shadow" style="background-color: #f0fdf4; border-left-color: #16a34a;">
+                        <p class="font-bold text-green-800 mb-1"><i class="fas fa-clock mr-2"></i>Pattern: Long Response Gaps / Low Commitment</p>
+                        <p class="font-mono text-sm bg-white p-3 rounded">
+                            **"${getRecommendation('low_commitment')}"**
+                        </p>
+                    </div>
+                </section>
+            </div>
             `;
         };
 
@@ -743,15 +1003,30 @@
             const apiKey = window.appState.geminiApiKey;
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
-            const systemPrompt = `You are a sophisticated Lead Qualification Analyst AI. Your task is to analyze the provided chat transcript and generate a comprehensive qualification report structured in JSON format. The analysis must strictly adhere to the BANT framework: Budget (B), Authority (A), Need (N), and Timeline (T).
+            const systemPrompt = `You are a sophisticated Lead Qualification Analyst AI. Your task is to analyze the provided chat transcript and generate a comprehensive qualification report structured in JSON format. The analysis must strictly adhere to the BANT framework and include detailed behavioral analysis for generating the final case study report.
+
             Assign a score from 1 (Low/Missing) to 5 (High/Clear) for each BANT category. You MUST use the exact JSON schema provided.
+
             1. overallScore: The average of the four BANT scores (rounded to one decimal place).
-            2. finalVerdict: A concise verdict (e.g., "Highly Qualified", "Requires Nurturing", "Window Shopper").
-            3. summary: A detailed, professional paragraph explaining the overall lead status and key findings.
-            4. scores: An object containing four keys (budget, authority, need, timeline), each containing:
+            2. finalVerdict: A concise verdict (e.g., "Highly Qualified", "Requires Nurturing", "Time Waster").
+            3. prospectName: Attempt to infer the prospect's name or company name (e.g., "Flavia" or "XYZ Corp"). If unavailable, use "Unidentified Prospect".
+            4. summary: A detailed, professional paragraph explaining the overall lead status and key findings.
+            5. scores: An object containing four keys (budget, authority, need, timeline), each containing:
                 - score: (Integer 1-5) The qualification score.
                 - comment: (String) A brief justification for the score.
-                - supportingQuote: (String) The exact quote from the transcript that best supports the score. If no clear quote exists, use "No clear indication in transcript."`;
+                - supportingQuote: (String) The exact quote from the transcript that best supports the score. If no clear quote exists, use "No clear indication in transcript."
+            6. redFlags: An array of up to 3 critical red flags found in the conversation. Each flag should have a name, a comment, and the exact supportingQuote.
+            7. recommendations: An array of three objects, providing specific, policy-compliant scripts for common sales patterns. Use the exact 'type' keys: 'free_work', 'price_first', and 'low_commitment'.
+
+            EXAMPLE JSON STRUCTURE (Provide scripts in the language of the transcript):
+            "redFlags": [
+                { "name": "FREE MOCK-UP DEMAND", "comment": "Demanded design work before commitment.", "supportingQuote": "Espero por el montaje" }
+            ],
+            "recommendations": [
+                { "type": "free_work", "script": "Aprecio su interés. Nuestros diseños..."},
+                // ... two more
+            ]
+            `;
 
             const userQuery = `Analyze the following chat transcript for lead qualification based on the BANT framework:\n\n---\n${transcript}\n---`;
 
@@ -765,6 +1040,7 @@
                         properties: {
                             overallScore: { type: "NUMBER" },
                             finalVerdict: { type: "STRING" },
+                            prospectName: { type: "STRING" },
                             summary: { type: "STRING" },
                             scores: {
                                 type: "OBJECT",
@@ -774,9 +1050,23 @@
                                     need: { type: "OBJECT", properties: { score: { type: "INTEGER" }, comment: { type: "STRING" }, supportingQuote: { type: "STRING" } } },
                                     timeline: { type: "OBJECT", properties: { score: { type: "INTEGER" }, comment: { type: "STRING" }, supportingQuote: { type: "STRING" } } },
                                 },
-                            }
+                            },
+                            redFlags: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: { name: { type: "STRING" }, comment: { type: "STRING" }, supportingQuote: { type: "STRING" } },
+                                }
+                            },
+                            recommendations: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: { type: { type: "STRING" }, script: { type: "STRING" } },
+                                }
+                            },
                         },
-                        required: ["overallScore", "finalVerdict", "summary", "scores"]
+                        required: ["overallScore", "finalVerdict", "summary", "scores", "redFlags", "recommendations", "prospectName"]
                     }
                 }
             };
@@ -808,20 +1098,22 @@
 
                 const report = JSON.parse(jsonText);
 
+                // Start the score animation immediately
+                const qualificationScore = Math.round(report.overallScore * 20);
+                window.animateCounter('score-counter-display', qualificationScore, 1000);
+
                 let currentConv = window.appState.currentConversation || {
                     id: null,
-                    title: `Analysis - ${report.finalVerdict}`,
+                    title: `Report - ${report.prospectName}`,
                     transcript: transcript,
-                    report: report
+                    report: report,
+                    isSaved: false // NEW: Mark as unsaved
                 };
-
-                if (!currentConv.id) {
-                    currentConv.title = `Analysis - ${report.finalVerdict}`;
-                    currentConv.transcript = transcript;
-                }
+                
                 currentConv.report = report;
-                window.appState.currentConversation = await window.saveConversation(currentConv);
-
+                currentConv.transcript = transcript;
+                window.appState.currentConversation = currentConv; // Update local state
+                
                 reportContentDisplay.innerHTML = window.generateReportHTML(report, transcript);
                 document.getElementById('report-view').scrollTop = 0;
 
@@ -831,6 +1123,7 @@
             } finally {
                 analyzeButton.disabled = false;
                 analyzeButton.innerHTML = '<i class="fas fa-arrow-up"></i>';
+                window.updateSaveButtonVisibility(); // Show save button if new report exists
             }
         };
 
@@ -862,10 +1155,10 @@
             const tempHideElements = document.querySelectorAll('.hide-for-pdf');
             tempHideElements.forEach(el => el.style.display = 'none');
             
-            html2canvas(reportElement, {
+            html2canvas(reportElement.querySelector('.case-study-report'), { // Target the inner report wrapper
                 scale: 2,
                 useCORS: true,
-                backgroundColor: '#141414',
+                backgroundColor: '#ffffff', // Ensure white background for PDF
                 windowWidth: reportElement.scrollWidth,
                 windowHeight: reportElement.scrollHeight,
             }).then(canvas => {
@@ -888,21 +1181,12 @@
                     heightLeft -= pageHeight;
                 }
 
-                pdf.save("Lead_Qualification_Report.pdf");
+                const title = window.appState.currentConversation.title.replace(/[^a-zA-Z0-9]/g, '_');
+                pdf.save(`${title}_Report.pdf`);
 
                 // Restore hidden elements
                 tempHideElements.forEach(el => el.style.display = '');
             });
-        };
-
-
-        // --- Google Translate Feature ---
-        window.googleTranslateElementInit = () => {
-            new google.translate.TranslateElement({
-                pageLanguage: 'en',
-                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                autoDisplay: false
-            }, 'google_translate_element_container');
         };
 
 
@@ -942,7 +1226,6 @@
         });
 
     </script>
-    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 
     <!-- Loading State -->
@@ -970,13 +1253,13 @@
                     <!-- Full Logo (Open State) -->
                     <img id="sidebar-full-logo" src="https://ik.imagekit.io/bebell/LeadLens/Logo%20Showcase%20-%20AI%20(2).png" alt="Brand Logo" class="w-full h-auto mt-4" style="border-radius: 4px;">
                     <!-- Icon Logo (Closed State) -->
-                    <img id="sidebar-icon-logo" src="https://ik.imagekit.io/bebell/LeadLens/logo-horizontal-leadlens.png" alt="Brand Icon" class="w-8 h-8 object-cover hidden">
+                    <img id="sidebar-icon-logo" src="https://ik.imagekit.io/bebell/LeadLens/icon%20for%20LeadLens.png" alt="Brand Icon" class="w-8 h-8 object-cover hidden">
                 </div>
 
                 <!-- New Chat Button -->
                 <div class="my-4 px-4 flex-shrink-0">
                     <button onclick="window.newConversation()" class="w-full bg-skin-color hover:opacity-90 text-title-color font-semibold py-2 rounded-lg transition duration-150 ease-in-out flex items-center justify-center">
-                        <i class="fas fa-plus mr-2"></i> New chat
+                        <i class="fas fa-plus mr-2"></i> New Report
                     </button>
                 </div>
                 
@@ -990,7 +1273,7 @@
                 <!-- Sidebar Footer (Avatar, Username, Version) - Opens Settings Modal -->
                 <div class="mt-auto pt-4 border-t px-4 flex-shrink-0 cursor-pointer hover:bg-mirage-color/50 transition duration-150 rounded-t-lg" style="border-color: var(--mirage-color)" onclick="document.getElementById('settings-modal-wrapper').classList.remove('hidden')">
                     <div class="flex items-center space-x-3 p-2 sidebar-footer-content">
-                        <img src="https://placehold.co/40x40/ff5011/white?text=U" alt="User Profile" class="w-10 h-10 rounded-full object-cover ring-2" style="border-color: var(--skin-color)">
+                        <img id="sidebar-avatar-display" src="${DEFAULT_AVATAR}" alt="User Profile" class="w-10 h-10 rounded-full object-cover ring-2 user-avatar-display" style="border-color: var(--skin-color)">
                         <div>
                             <p class="text-sm font-semibold text-title-color truncate" id="sidebar-username-display">Lead Analyst</p>
                             <p class="text-xs" style="color: var(--text-color)" id="sidebar-version-display"></p>
@@ -1008,8 +1291,11 @@
         <!-- Main Content Area (Right) -->
         <main id="main-content-wrapper" class="main-content-wrapper flex flex-col flex-1 overflow-x-hidden relative" style="background-color: var(--body-color)">
             
-            <!-- Fixed Top Right Controls (PDF Only) -->
+            <!-- Fixed Top Right Controls (PDF & Save) -->
             <div class="fixed-top-right flex space-x-3 items-center hide-for-pdf">
+                 <button id="save-report-button" onclick="window.saveCurrentReport()" class="bg-green-600 hover:bg-green-700 text-title-color font-semibold py-2 px-3 rounded-lg shadow-md transition text-sm hidden">
+                    <i class="fas fa-save mr-1"></i> Save Report
+                </button>
                  <button onclick="window.downloadReportAsPDF()" class="bg-mirage-color hover:bg-mirage-color/70 text-title-color font-semibold py-2 px-3 rounded-lg shadow-md transition text-sm">
                     <i class="fas fa-file-pdf mr-1"></i> PDF
                 </button>
@@ -1020,7 +1306,7 @@
                 <div class="max-w-xl mx-auto flex flex-col items-center w-full">
                     <!-- Profile Avatar (New Icon) - No border/ring -->
                     <div class="mb-4">
-                        <img src="https://ik.imagekit.io/bebell/LeadLens/icon%20for%20LeadLens.png" alt="AI Avatar" class="w-30 h-30 rounded-full">
+                        <img src="https://ik.imagekit.io/bebell/LeadLens/icon%20for%20LeadLens.png" alt="AI Avatar" class="w-20 h-20 rounded-full">
                     </div>
                     <!-- Greeting (Bolder, fixed text) -->
                     <h2 id="welcome-greeting" class="text-title-color text-center" style="font-size: 2.5rem; font-weight: 800; letter-spacing: -0.05em; line-height: 1.1;">Who should we qualify today?</h2>
@@ -1052,9 +1338,9 @@
             </div>
 
             <!-- 2. Report View (Scrollable Content) -->
-            <div id="report-view" class="hidden relative">
-                <div id="report-content-display">
-                    <!-- Report content will be injected here -->
+            <div id="report-view" class="hidden relative p-4 sm:p-8">
+                <div id="report-content-display" class="w-full h-full flex justify-center items-start">
+                    <!-- Report content will be injected here by JS, styled as the case study -->
                 </div>
                  <!-- Back to Top Button -->
                 <button id="back-to-top" class="hidden fixed bottom-24 right-8 text-title-color p-3 rounded-full shadow-lg transition duration-300" style="background-color: var(--skin-color)" title="Go to top">
@@ -1070,21 +1356,27 @@
         <div id="settings-modal" class="rounded-xl shadow-2xl p-6 sm:p-8 w-11/12 max-w-lg transition-all duration-300 transform scale-100 border" style="background-color: var(--box-color); border-color: var(--mirage-color)" onclick="event.stopPropagation()">
             <h3 class="text-2xl font-bold mb-6 border-b pb-2 text-title-color" style="border-color: var(--mirage-color)">User Settings & API Access</h3>
 
-           
-           
-           <div class="space-y-5">
-             
+            <div class="space-y-5">
                 <!-- Profile Section -->
-                <div class="flex items-center space-x-4 pb-4 border-b" style="border-color: var(--mirage-color)">
-                    <img src="https://placehold.co/60x60/ff5011/white?text=U" alt="User Profile" class="w-16 h-16 rounded-full object-cover ring-2" style="border-color: var(--skin-color)">
-                    <div class="flex-1">
-                        <label for="username-input" class="block text-sm font-medium text-text-color">Username</label>
-                        <input type="text" id="username-input" placeholder="Your Name" class="mt-1 block w-full p-2 border rounded-md shadow-sm text-title-color" style="background-color: var(--mirage-color); border-color: var(--mirage-color)">
+                <div class="flex flex-col space-y-4 pb-4 border-b" style="border-color: var(--mirage-color)">
+                    <div class="flex items-center space-x-4">
+                        <img id="modal-avatar-display" src="${DEFAULT_AVATAR}" alt="User Profile" class="w-16 h-16 rounded-full object-cover ring-2 user-avatar-display" style="border-color: var(--skin-color)">
+                        <div class="flex-1">
+                            <label for="username-input" class="block text-sm font-medium text-text-color">Username</label>
+                            <input type="text" id="username-input" placeholder="Your Name" class="mt-1 block w-full p-2 border rounded-md shadow-sm text-title-color" style="background-color: var(--mirage-color); border-color: var(--mirage-color)">
+                        </div>
+                    </div>
+                    
+                    <!-- Avatar Upload -->
+                    <div>
+                         <label class="block text-sm font-medium text-text-color mb-1">Profile Picture (Max 500KB)</label>
+                         <input type="file" id="profile-picture-upload" onchange="window.handleProfilePictureUpload(event)" accept="image/png, image/jpeg, image/gif" class="block w-full text-sm text-text-color
+                            file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold
+                            file:bg-skin-color/80 file:text-white hover:file:bg-skin-color/90"
+                         />
+                         <p id="upload-status" class="mt-2 text-xs text-green-500"></p>
                     </div>
                 </div>
-                
-                
-                
 
                 <!-- API Key Section (BYOK) -->
                 <div>
@@ -1093,10 +1385,10 @@
                     <p class="mt-2 text-xs text-red-400">Required for AI analysis. Your key is saved securely using Firestore.</p>
                 </div>
 
-                <!-- Language Selector -->
-                <div class="pt-2 border-b pb-4" style="border-color: var(--mirage-color)">
-                    <p class="block text-sm font-medium text-text-color mb-2">Translate UI</p>
-                    <div id="google_translate_element_container" class="text-sm"></div>
+                <!-- Privacy Notice (New) -->
+                <div class="bg-yellow-900/20 p-3 rounded-md border border-yellow-700/50">
+                    <p class="text-xs text-yellow-500 font-semibold mb-1"><i class="fas fa-shield-alt mr-1"></i> Data Privacy Notice</p>
+                    <p class="text-xs text-gray-400">Transcripts are processed by Google Gemini AI. Do not upload transcripts containing sensitive PII (Personally Identifiable Information) such as credit card numbers or medical data.</p>
                 </div>
 
                 <!-- Subscription Settings (Placeholder) -->
