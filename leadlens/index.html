@@ -179,6 +179,17 @@
             z-index: 30;
         }
         
+        /* FIX: Custom CSS for PDF Button Hover */
+        .fixed-top-right button[title="Download PDF"]:hover {
+            background-color: var(--mirage-color) !important; /* Force dark gray background on hover */
+        }
+        
+        /* FIX: Custom CSS for PDF Button Default Style */
+        .pdf-button-style {
+            background-color: var(--skin-color); /* Guaranteed orange on default */
+            color: white; /* Guaranteed white icon on default */
+        }
+
         /* Floating Input Area (Managed by JS) */
         #main-input-container {
             /* Aligned beneath the greeting text */
@@ -1251,6 +1262,7 @@
                     </button>
                     
                     <!-- Full Logo (Open State) -->
+                    <!-- UPDATED LOGO HERE -->
                     <img id="sidebar-full-logo" src="https://ik.imagekit.io/bebell/LeadLens/logo-horizontal-leadlens.png?updatedAt=1763522577486" alt="Brand Logo" class="w-full h-auto mt-4" style="border-radius: 4px;">
                     <!-- Icon Logo (Closed State) -->
                     <img id="sidebar-icon-logo" src="https://ik.imagekit.io/bebell/LeadLens/icon%20for%20LeadLens.png" alt="Brand Icon" class="w-8 h-8 object-cover hidden">
@@ -1273,7 +1285,7 @@
                 <!-- Sidebar Footer (Avatar, Username, Version) - Opens Settings Modal -->
                 <div class="mt-auto pt-4 border-t px-4 flex-shrink-0 cursor-pointer hover:bg-mirage-color/50 transition duration-150 rounded-t-lg" style="border-color: var(--mirage-color)" onclick="document.getElementById('settings-modal-wrapper').classList.remove('hidden')">
                     <div class="flex items-center space-x-3 p-2 sidebar-footer-content">
-                        <img id="sidebar-avatar-display" src="${DEFAULT_AVATAR}" alt="User Profile" class="w-10 h-10 rounded-full object-cover ring-2 user-avatar-display" style="border-color: var(--skin-color)">
+                        <img id="sidebar-avatar-display" src="https://ik.imagekit.io/bebell/LeadLens/Picture%20Avatar%20(1).png" alt="User Profile" class="w-10 h-10 rounded-full object-cover ring-2 user-avatar-display" style="border-color: var(--skin-color)">
                         <div>
                             <p class="text-sm font-semibold text-title-color truncate" id="sidebar-username-display">Lead Analyst</p>
                             <p class="text-xs" style="color: var(--text-color)" id="sidebar-version-display"></p>
@@ -1296,8 +1308,9 @@
                  <button id="save-report-button" onclick="window.saveCurrentReport()" class="bg-green-600 hover:bg-green-700 text-title-color font-semibold py-2 px-3 rounded-lg shadow-md transition text-sm hidden">
                     <i class="fas fa-save mr-1"></i> Save Report
                 </button>
-                 <button onclick="window.downloadReportAsPDF()" class="bg-mirage-color hover:bg-mirage-color/70 text-title-color font-semibold py-2 px-3 rounded-lg shadow-md transition text-sm">
-                    <i class="fas fa-file-pdf mr-1"></i> PDF
+                <!-- NEW PDF BUTTON STYLING -->
+                 <button onclick="window.downloadReportAsPDF()" class="pdf-button-style font-semibold w-10 h-10 rounded-full shadow-md transition duration-200 ease-in-out flex items-center justify-center group" title="Download PDF">
+                    <i class="fas fa-file-pdf text-lg text-white group-hover:text-skin-color"></i>
                 </button>
             </div>
 
@@ -1306,7 +1319,8 @@
                 <div class="max-w-xl mx-auto flex flex-col items-center w-full">
                     <!-- Profile Avatar (New Icon) - No border/ring -->
                     <div class="mb-4">
-                        <img src="https://ik.imagekit.io/bebell/LeadLens/icon%20for%20LeadLens.png" alt="AI Avatar" class="w-20 h-20 rounded-full">
+                        <!-- ICON SIZE INCREASED HERE (w-28 h-28) -->
+                        <img src="https://ik.imagekit.io/bebell/LeadLens/icon%20for%20LeadLens.png" alt="AI Avatar" class="w-28 h-28 rounded-full">
                     </div>
                     <!-- Greeting (Bolder, fixed text) -->
                     <h2 id="welcome-greeting" class="text-title-color text-center" style="font-size: 2.5rem; font-weight: 800; letter-spacing: -0.05em; line-height: 1.1;">Who should we qualify today?</h2>
@@ -1372,7 +1386,7 @@
                          <label class="block text-sm font-medium text-text-color mb-1">Profile Picture (Max 500KB)</label>
                          <input type="file" id="profile-picture-upload" onchange="window.handleProfilePictureUpload(event)" accept="image/png, image/jpeg, image/gif" class="block w-full text-sm text-text-color
                             file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold
-                            file:bg-skin-color/80 file:text-white hover:file:bg-skin-color/90"
+                            file:bg-skin-color file:text-white hover:file:bg-mirage-color hover:file:text-title-color"
                          />
                          <p id="upload-status" class="mt-2 text-xs text-green-500"></p>
                     </div>
@@ -1402,13 +1416,19 @@
                     </details>
                 </div>
 
-                <!-- Data Management -->
-                <div class="pt-4 border-t" style="border-color: var(--mirage-color)">
-                    <button onclick="window.eraseAllData()" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-2 rounded-lg transition">
-                        <i class="fas fa-trash-alt mr-2"></i> ERASE ALL DATA SAVED
-                    </button>
-                    <p id="erase-status" class="mt-2 text-center text-sm text-green-500"></p>
-                </div>
+                <!-- Data Management (Wrapped in Details for Safety) -->
+                <details class="pt-4 border-t" style="border-color: var(--mirage-color)">
+                    <summary class="font-medium cursor-pointer text-title-color text-sm">
+                        <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i> Advanced Data Management
+                    </summary>
+                    <div class="mt-4">
+                        <button onclick="window.eraseAllData()" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-2 rounded-lg transition">
+                            <i class="fas fa-trash-alt mr-2"></i> ERASE ALL DATA SAVED
+                        </button>
+                        <p id="erase-status" class="mt-2 text-center text-sm text-green-500"></p>
+                    </div>
+                </details>
+
             </div>
 
             <!-- Action Buttons -->
