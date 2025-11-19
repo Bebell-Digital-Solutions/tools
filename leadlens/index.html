@@ -363,7 +363,7 @@
         
         // Default avatar image (used if none is uploaded)
         const DEFAULT_AVATAR = "https://ik.imagekit.io/bebell/LeadLens/Picture%20Avatar%20(1).png"; 
-
+        const LOCAL_STORAGE_KEY = 'geminiLeadQualifierSettings'; // New key for localStorage
 
         let app, db, auth;
         let globalUserId = null;
@@ -409,7 +409,7 @@
                     globalUserId = auth.currentUser?.uid || globalUserId;
                     window.appState.isAuthReady = true;
 
-                    // 2. Load User Settings and Conversations
+                    // 2. Load User Settings (Prioritizes localStorage, then Firestore) and Conversations
                     if (globalUserId) {
                         await loadUserSettings();
                         setupConversationsListener();
@@ -424,79 +424,115 @@
                 document.getElementById('loading-state').innerHTML = '<div class="text-red-500 p-4">Error initializing Firebase. Check console for details.</div>';
             }
         } else {
-             document.getElementById('loading-state').innerHTML = '<div class="text-yellow-500 p-4">Firebase config not found. Data persistence is disabled.</div>';
+             document.getElementById('loading-state').innerHTML = '<div class="text-yellow-500 p-4">Firebase config not found. Data persistence is disabled. Using browser storage.</div>';
              
-             // --- FIX: Proceed to main app view even without config ---
+             // Proceed to main app view even without config, using local storage
              globalUserId = 'persistence-disabled-user';
              window.appState.isAuthReady = true;
-             
+             loadUserSettings(); // Load from local storage immediately
+
              // Hide loading screen after a short delay so the user can read the message
              setTimeout(() => {
                  document.getElementById('loading-state').style.opacity = '0';
                  setTimeout(() => { document.getElementById('loading-state').style.display = 'none'; }, 300);
              }, 1000);
-             // --- END FIX ---
         }
 
-        // Firestore Paths
+        // Firestore Paths (kept for conversation history)
         const getUserSettingsDocRef = (uid) => doc(db, `artifacts/${appId}/users/${uid}/settings/user_settings`);
         const getConversationsCollectionRef = (uid) => collection(db, `artifacts/${appId}/users/${uid}/conversations`);
 
-        // --- Data Loading and Saving Functions ---
+        // --- Data Loading and Saving Functions (MODIFIED FOR localStorage) ---
 
         async function loadUserSettings() {
-            if (!globalUserId || !db) return;
-            const docRef = getUserSettingsDocRef(globalUserId);
-            const docSnap = await getDoc(docRef);
+            // 1. Load defaults
+            let loadedSettings = { ...window.appState.settings };
 
-            if (docSnap.exists()) {
-                const settings = docSnap.data();
-                window.appState.settings = {
-                    ...window.appState.settings,
-                    apiKey: settings.apiKey || "",
-                    username: settings.username || "Lead Analyst",
-                    profilePictureBase64: settings.profilePictureBase64 || DEFAULT_AVATAR
-                };
+            // 2. Try to load from localStorage (Browser persistence - user requested)
+            const localSettingsJson = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (localSettingsJson) {
+                try {
+                    const localSettings = JSON.parse(localSettingsJson);
+                    loadedSettings = { ...loadedSettings, ...localSettings };
+                    console.debug("Settings loaded from localStorage.");
+                } catch (e) {
+                    console.error("Error parsing localStorage settings:", e);
+                }
             }
+
+            // 3. If Firebase is active, try to load from Firestore (Higher priority/centralized if available)
+            if (globalUserId && db) {
+                try {
+                    const docRef = getUserSettingsDocRef(globalUserId);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        const firestoreSettings = docSnap.data();
+                        loadedSettings = { ...loadedSettings, ...firestoreSettings };
+                        console.debug("Settings merged from Firestore.");
+                    }
+                } catch(e) {
+                    console.error("Error loading settings from Firestore:", e);
+                }
+            }
+
+            // 4. Apply and set global state
+            window.appState.settings = {
+                ...loadedSettings,
+                // Ensure profile picture defaults if missing
+                profilePictureBase64: loadedSettings.profilePictureBase64 || DEFAULT_AVATAR
+            };
+            window.appState.geminiApiKey = window.appState.settings.apiKey;
 
             // Apply fixed dark theme
             document.body.classList.remove('dark-mode', 'light-mode');
             document.body.classList.add('dark-mode');
-            window.appState.geminiApiKey = window.appState.settings.apiKey;
 
             updateSettingsUI();
             updateMainViewVisibility();
         }
 
         window.saveUserSettings = async () => {
-            if (!globalUserId || !db) {
-                document.getElementById('save-status').textContent = 'Error: Persistence is disabled.';
-                return;
-            }
             const settingsModal = document.getElementById('settings-modal');
             const apiKey = settingsModal.querySelector('#api-key-input').value.trim();
             const username = settingsModal.querySelector('#username-input').value.trim() || "Lead Analyst";
             const profilePictureBase64 = window.appState.settings.profilePictureBase64 || DEFAULT_AVATAR;
 
-            // Save API key, username, and profile picture
             const newSettings = { apiKey, username, profilePictureBase64 };
+            let saveSuccess = false;
 
+            // 1. Save to localStorage (MANDATORY BROWSER PERSISTENCE - as requested by user)
             try {
-                const docRef = getUserSettingsDocRef(globalUserId);
-                await setDoc(docRef, newSettings, { merge: true });
-
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newSettings));
                 window.appState.settings = { ...window.appState.settings, ...newSettings };
                 window.appState.geminiApiKey = apiKey;
-                
-                document.getElementById('save-status').textContent = 'Settings saved successfully!';
-                setTimeout(() => document.getElementById('save-status').textContent = '', 3000);
-
-                updateMainViewVisibility(); 
-                updateSettingsUI(); // Ensure UI reflects saved state
+                saveSuccess = true;
+                console.debug("Settings saved to localStorage.");
             } catch (e) {
-                console.error("Error saving settings:", e);
-                document.getElementById('save-status').textContent = 'Error saving settings.';
+                console.error("Error saving settings to localStorage:", e);
             }
+            
+            // 2. Save to Firestore (Optional, but included for complete data structure if persistence is active)
+            if (globalUserId && db) {
+                try {
+                    const docRef = getUserSettingsDocRef(globalUserId);
+                    await setDoc(docRef, newSettings, { merge: true });
+                    console.debug("Settings saved to Firestore.");
+                } catch (e) {
+                    console.error("Error saving settings to Firestore:", e);
+                }
+            }
+            
+            // Update UI based on overall success
+            const statusElement = document.getElementById('save-status');
+            if (saveSuccess) {
+                statusElement.textContent = 'Settings saved successfully!';
+                updateMainViewVisibility(); 
+                updateSettingsUI();
+            } else {
+                statusElement.textContent = 'Error: Could not save settings to browser storage.';
+            }
+            setTimeout(() => statusElement.textContent = '', 3000);
         };
 
         window.handleProfilePictureUpload = (event) => {
@@ -505,7 +541,9 @@
 
             // Simple size check (limit to 500KB to prevent oversized Firestore documents)
             if (file.size > 500 * 1024) {
-                alert('Image file is too large. Please select an image under 500KB.');
+                // Use custom message box instead of alert
+                console.error('Image file is too large. Please select an image under 500KB.');
+                document.getElementById('upload-status').textContent = 'Error: Image file is too large (> 500KB).';
                 event.target.value = null; // Reset file input
                 return;
             }
@@ -545,7 +583,8 @@
         };
 
         function setupConversationsListener() {
-            if (!globalUserId || !db) return;
+            // Only set up Firestore listener if DB is active
+            if (!globalUserId || !db) return; 
             const q = query(getConversationsCollectionRef(globalUserId), orderBy("timestamp", "desc"));
 
             onSnapshot(q, (snapshot) => {
@@ -561,11 +600,14 @@
         }
 
         window.saveConversation = async (conversation) => {
-            if (!globalUserId || !db) return conversation;
+            if (!globalUserId || !db) {
+                console.warn("Firestore persistence disabled. Conversation not saved.");
+                return conversation; // Return conversation object without saving
+            }
             const conversationsRef = getConversationsCollectionRef(globalUserId);
 
             try {
-                if (conversation.id) {
+                if (conversation.id && !conversation.id.startsWith('local-')) { // Check for existing Firestore ID
                     const docRef = doc(conversationsRef, conversation.id);
                     await setDoc(docRef, {
                         ...conversation,
@@ -573,8 +615,10 @@
                         timestamp: serverTimestamp()
                     }, { merge: true });
                 } else {
+                    // It's a brand new conversation or an imported local conversation.
+                    const { id, ...dataToSave } = conversation; // Remove local ID
                     const newDoc = await addDoc(conversationsRef, {
-                        ...conversation,
+                        ...dataToSave,
                         isSaved: true,
                         timestamp: serverTimestamp()
                     });
@@ -604,41 +648,153 @@
         };
 
         window.eraseAllData = async () => {
-            if (!globalUserId || !db) {
-                document.getElementById('erase-status').textContent = 'Error: Persistence is disabled.';
-                return;
-            }
-            if (!confirm("ARE YOU ABSOLUTELY SURE? This will permanently delete ALL your saved conversations and settings!")) {
-                return;
-            }
-
-            try {
-                const batch = writeBatch(db);
-                const conversationsSnapshot = await getDocs(getConversationsCollectionRef(globalUserId));
-
-                conversationsSnapshot.forEach((doc) => {
-                    batch.delete(doc.ref);
-                });
-                batch.delete(getUserSettingsDocRef(globalUserId));
-
-                await batch.commit();
-
-                // Clear local state
-                window.appState.conversations = [];
-                window.appState.settings = { apiKey: "", username: "Lead Analyst", profilePictureBase64: DEFAULT_AVATAR };
-                window.appState.geminiApiKey = "";
-                document.body.classList.remove('light-mode');
-                document.body.classList.add('dark-mode');
-                window.updateSettingsUI();
-                window.newConversation();
-
-                document.getElementById('erase-status').textContent = 'All data erased successfully!';
+            // Use custom modal replacement instead of confirm
+            const result = prompt("To permanently delete ALL saved conversations and settings, type 'DELETE' below:");
+            if (result !== "DELETE") {
+                document.getElementById('erase-status').textContent = 'Deletion canceled.';
                 setTimeout(() => document.getElementById('erase-status').textContent = '', 3000);
-
-            } catch (e) {
-                console.error("Error erasing all data:", e);
-                document.getElementById('erase-status').textContent = 'Error erasing data.';
+                return;
             }
+            
+            // 1. Erase LocalStorage
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+
+            // 2. Erase Firestore Data
+            if (globalUserId && db) {
+                try {
+                    const batch = writeBatch(db);
+                    const conversationsSnapshot = await getDocs(getConversationsCollectionRef(globalUserId));
+
+                    conversationsSnapshot.forEach((doc) => {
+                        batch.delete(doc.ref);
+                    });
+                    batch.delete(getUserSettingsDocRef(globalUserId));
+
+                    await batch.commit();
+
+                } catch (e) {
+                    console.error("Error erasing all data from Firestore:", e);
+                }
+            }
+            
+            // Clear local state
+            window.appState.conversations = [];
+            window.appState.settings = { apiKey: "", username: "Lead Analyst", profilePictureBase64: DEFAULT_AVATAR };
+            window.appState.geminiApiKey = "";
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode');
+            window.updateSettingsUI();
+            window.newConversation();
+
+            document.getElementById('erase-status').textContent = 'All data erased successfully!';
+            setTimeout(() => document.getElementById('erase-status').textContent = '', 3000);
+        };
+
+        /**
+         * Function to download the current appState as a JSON file
+         */
+        window.exportConversationHistory = () => {
+            // Exclude database-specific objects before export
+            const exportState = {
+                settings: window.appState.settings,
+                conversations: window.appState.conversations.map(conv => {
+                    // Remove Firebase-specific timestamp object if it exists
+                    const { timestamp, ...rest } = conv;
+                    return rest;
+                }),
+                // Add current conversation if it exists and is not already in the list (e.g., unsaved new report)
+                currentConversation: window.appState.currentConversation?.report && 
+                                     !window.appState.currentConversation.id ? 
+                                     window.appState.currentConversation : null
+            };
+
+            const jsonString = JSON.stringify(exportState, null, 2);
+            const blob = new Blob([jsonString], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `GeminiLeadQualifier_Export_${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            document.getElementById('export-status').textContent = 'Exported successfully!';
+            setTimeout(() => document.getElementById('export-status').textContent = '', 3000);
+        };
+
+        /**
+         * Function to handle the import of a JSON or text file (restores state)
+         */
+        window.handleImport = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                const importStatus = document.getElementById('import-status');
+                importStatus.textContent = 'Importing...';
+
+                try {
+                    // Attempt to parse as JSON first (for exported app state)
+                    const importedState = JSON.parse(content);
+
+                    if (importedState.settings && Array.isArray(importedState.conversations)) {
+                        // 1. Restore Settings
+                        window.appState.settings = importedState.settings;
+                        window.appState.geminiApiKey = importedState.settings.apiKey;
+                        
+                        // Save imported settings to localStorage immediately
+                        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(importedState.settings));
+                        updateSettingsUI();
+
+                        // 2. Restore Conversations (Assign temporary local IDs)
+                        window.appState.conversations = importedState.conversations.map(conv => ({
+                            ...conv,
+                            // Assign a local ID for immediate use if Firebase ID is missing
+                            id: conv.id && !conv.id.startsWith('local-') ? conv.id : 'local-' + Math.random().toString(36).substring(2, 9), 
+                            isSaved: false // Mark all imported conversations as unsaved to force a Firebase save if re-enabled
+                        }));
+
+                        // 3. Restore Current Conversation (if present)
+                        if (importedState.currentConversation && importedState.currentConversation.transcript) {
+                            window.appState.currentConversation = importedState.currentConversation;
+                            document.getElementById('main-transcript-input').value = importedState.currentConversation.transcript;
+                        } else if (window.appState.conversations.length > 0) {
+                            // Load the most recent conversation from the imported list
+                            window.loadConversation(window.appState.conversations[0].id);
+                        } else {
+                            window.newConversation();
+                        }
+
+                        // Update UI
+                        renderSidebar();
+                        updateMainViewVisibility();
+                        importStatus.textContent = 'State restored from JSON!';
+                        
+                    } else {
+                        // If JSON is not a state object, treat it as a transcript
+                        throw new Error("Invalid JSON structure, treating as transcript.");
+                    }
+                    
+                } catch (jsonError) {
+                    // If JSON parsing fails or structure is incorrect, treat content as plain transcript
+                    window.newConversation();
+                    document.getElementById('main-transcript-input').value = content;
+                    window.appState.currentConversation.transcript = content;
+                    window.appState.currentConversation.report = null; // Ensure new transcript clears old report
+                    window.updateMainViewVisibility();
+                    
+                    importStatus.textContent = 'File imported as a new transcript!';
+                }
+                setTimeout(() => importStatus.textContent = '', 3000);
+            };
+
+            reader.readAsText(file);
+            // Reset file input to allow importing the same file again
+            event.target.value = ''; 
         };
 
         /**
@@ -662,8 +818,8 @@
             if (!sidebarList) return;
 
             sidebarList.innerHTML = '';
-            // Only render list if persistence is enabled (db is available)
-            if (db) {
+            // Only render list if Firebase is active OR if we have local conversations (from import)
+            if (db || window.appState.conversations.length > 0) {
                 window.appState.conversations.forEach(conv => {
                     const isActive = window.appState.currentConversation && window.appState.currentConversation.id === conv.id;
                     const title = conv.title || conv.transcript.substring(0, 30).trim() + '...';
@@ -687,7 +843,9 @@
         window.loadConversation = (id) => {
             const conv = window.appState.conversations.find(c => c.id === id);
             if (conv) {
-                window.appState.currentConversation = { ...conv, isSaved: true };
+                // Determine if this is a saved Firestore item or a temporary imported item
+                const isSavedInFirestore = !id.startsWith('local-');
+                window.appState.currentConversation = { ...conv, isSaved: isSavedInFirestore };
                 document.getElementById('main-transcript-input').value = conv.transcript || '';
 
                 window.updateMainViewVisibility();
@@ -695,6 +853,8 @@
                     document.getElementById('report-content-display').innerHTML = window.generateReportHTML(conv.report, conv.transcript);
                     window.animateCounter('score-counter-display', conv.report.qualificationScore || 0, 500); // Re-run animation
                     document.getElementById('report-view').scrollTop = 0;
+                } else {
+                    document.getElementById('report-content-display').innerHTML = '';
                 }
                 renderSidebar();
             }
@@ -740,8 +900,8 @@
             const currentConv = window.appState.currentConversation;
             
             if (saveButton) {
-                // Show button if a report exists and it hasn't been saved yet (id is null or isSaved is false)
-                const shouldShow = currentConv && currentConv.report && !currentConv.isSaved;
+                // Show button if a report exists, the DB is active, and it hasn't been saved yet (id is null or isSaved is false)
+                const shouldShow = currentConv && currentConv.report && !currentConv.isSaved && db;
                 saveButton.style.display = shouldShow ? 'block' : 'none';
             }
         };
@@ -768,7 +928,13 @@
         window.saveCurrentReport = async () => {
             const currentConv = window.appState.currentConversation;
             if (!currentConv || !currentConv.report) {
-                alert('No report has been generated to save.');
+                console.error('No report has been generated to save.');
+                return;
+            }
+            if (!db) {
+                console.error('Persistence is disabled. Cannot save report.');
+                document.getElementById('save-report-button').textContent = 'Cannot Save (DB Offline)';
+                setTimeout(() => window.updateSaveButtonVisibility(), 3000);
                 return;
             }
 
@@ -993,12 +1159,14 @@
             const reportContentDisplay = document.getElementById('report-content-display');
 
             if (!transcript) {
-                alert('Please paste or upload a conversation transcript.');
+                // Use console error/custom message instead of alert
+                console.error('Please paste or upload a conversation transcript.');
                 return;
             }
 
             if (!window.appState.geminiApiKey) {
-                alert('Please set your Google Gemini API Key in the Settings modal before analyzing leads.');
+                // Use console error/custom message instead of alert
+                console.error('Please set your Google Gemini API Key in the Settings modal before analyzing leads.');
                 document.getElementById('settings-modal-wrapper').classList.remove('hidden');
                 return;
             }
@@ -1158,7 +1326,8 @@
         window.downloadReportAsPDF = () => {
             const reportElement = document.getElementById('report-content-display');
             if (!reportElement || !window.appState.currentConversation?.report) {
-                alert('No report has been generated yet.');
+                // Use console error/custom message instead of alert
+                console.error('No report has been generated yet.');
                 return;
             }
 
@@ -1385,8 +1554,8 @@
                     <div>
                          <label class="block text-sm font-medium text-text-color mb-1">Profile Picture (Max 500KB)</label>
                          <input type="file" id="profile-picture-upload" onchange="window.handleProfilePictureUpload(event)" accept="image/png, image/jpeg, image/gif" class="block w-full text-sm text-text-color
-                            file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold
-                            file:bg-skin-color file:text-white hover:file:bg-mirage-color hover:file:text-title-color"
+                             file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold
+                             file:bg-skin-color file:text-white hover:file:bg-mirage-color hover:file:text-title-color"
                          />
                          <p id="upload-status" class="mt-2 text-xs text-green-500"></p>
                     </div>
@@ -1396,7 +1565,7 @@
                 <div>
                     <label for="api-key-input" class="block text-sm font-medium text-text-color mb-2">Gemini API Key (BYOK)</label>
                     <input type="password" id="api-key-input" placeholder="Enter your Google Gemini API Key" class="mt-1 block w-full p-2 border border-red-700 rounded-md shadow-sm focus:ring-skin-color focus:border-skin-color text-title-color" style="background-color: var(--mirage-color)">
-                    <p class="mt-2 text-xs text-red-400">Required for AI analysis. Your key is saved securely using Firestore.</p>
+                    <p class="mt-2 text-xs text-red-400">Required for AI analysis. Your key is saved securely using **Browser Storage** (and Firestore if available).</p>
                 </div>
 
                 <!-- Privacy Notice (New) -->
@@ -1412,9 +1581,33 @@
                     <details class="mt-2 p-2 border rounded-md" style="border-color: var(--mirage-color)">
                         <summary class="font-medium cursor-pointer text-title-color">Canceling Instructions (PayPal)</summary>
                         <p class="text-xs mt-2 text-text-color">To cancel your subscription, please follow the instructions on your PayPal account's 'Automatic Payments' section.</p>
-                        <a href="#" class="hover:underline text-xs" style="color: var(--skin-color)" onclick="alert('This is a placeholder for a link to PayPal settings.')">Go to PayPal Payments</a>
+                        <a href="#" class="hover:underline text-xs" style="color: var(--skin-color)" onclick="console.log('Placeholder for PayPal link.')">Go to PayPal Payments</a>
                     </details>
                 </div>
+                
+                <!-- Data Import/Export (New Section) -->
+                <details class="pt-4 border-t" style="border-color: var(--mirage-color)">
+                    <summary class="font-medium cursor-pointer text-title-color text-sm">
+                        <i class="fas fa-file-export mr-2 text-blue-500"></i> Import & Export Data
+                    </summary>
+                    <div class="mt-4 space-y-3">
+                        <!-- Export Button -->
+                        <button onclick="window.exportConversationHistory()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition">
+                            <i class="fas fa-download mr-2"></i> EXPORT ALL DATA (.json)
+                        </button>
+                        <p id="export-status" class="mt-2 text-center text-sm text-green-500"></p>
+
+                        <!-- Import File Input -->
+                        <div>
+                            <label for="import-file-input" class="block text-xs font-medium text-text-color mb-1">Restore from File (.json or .txt)</label>
+                            <input type="file" id="import-file-input" onchange="window.handleImport(event)" accept=".json,.txt,.log,.md" class="block w-full text-sm text-text-color
+                                file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold
+                                file:bg-mirage-color file:text-title-color hover:file:bg-skin-color hover:file:text-white"
+                            />
+                            <p id="import-status" class="mt-2 text-center text-sm text-green-500"></p>
+                        </div>
+                    </div>
+                </details>
 
                 <!-- Data Management (Wrapped in Details for Safety) -->
                 <details class="pt-4 border-t" style="border-color: var(--mirage-color)">
