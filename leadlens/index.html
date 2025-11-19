@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Lead Qualifier: AI Prospect Analysis</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMD/CDQ6K+wQWvEiwE5XWfG82QeP+21S9mYg60G0LgR8L+gGv0yqXF2n5G+J5Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Load required libraries for PDF generation (html2canvas, jsPDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Use Inter font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        /* New Color Palette and Base Styles */
+        :root {
+            /* Color Palette */
+            --skin-color: #ff5011; /* Orange-Red Accent */
+            --mirage-color: hsl(210, 10%, 23%); /* Dark Gray Background Component */
+            --title-color: hsl(242, 8%, 98%); /* Near White for Titles */
+            --text-color: hsl(242, 8%, 80%); /* Light Gray for Body Text */
+            --body-color: #0d0d0d; /* Deep Black/Very Dark Gray */
+            --box-color: hsl(242, 14%, 12%); /* Slightly lighter than body for cards */
+            --hue-color: 242; /* Used for transparent shadows/colors */
+
+            /* Typography (adapted to Tailwind use) */
+            --body-font: 'Inter', sans-serif;
+            --font-medium: 500;
+            --font-bold: 700;
+            
+            /* UI colors based on new palette */
+            --bg-color-main: var(--body-color);
+            --text-color-primary: var(--title-color);
+            --bg-color-sidebar: var(--body-color);
+            --bg-color-input: var(--mirage-color);
+            --bg-color-report: var(--box-color);
+            --color-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+            --flavia-bg: var(--mirage-color); /* Prospect */
+            --nfc-bg: var(--skin-color); /* Agent/AI */
+            --nfc-text: var(--title-color);
+            --highlight-border: var(--skin-color);
+            --highlight-bg: hsla(0, 100%, 50%, 0.1); /* Transparent red based on skin */
+            --blue-accent: var(--skin-color);
+            --border-color: var(--mirage-color);
+
+            /* Scrollbar/Misc */
+            --scroll-box-color: var(--box-color);
+            --scroll-thumb-color: var(--skin-color);
+        }
+
+        /* Light mode colors remain defined but are unused by JS for simplicity */
+        .light-mode {
+            --bg-color-main: #f7f9fb;
+            --text-color-primary: #1f2937;
+            --bg-color-sidebar: #ffffff;
+            --bg-color-input: #ffffff;
+            --bg-color-report: #ffffff;
+            --color-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --flavia-bg: #e2e8f0;
+            --nfc-bg: #3b82f6;
+            --nfc-text: white;
+            --highlight-border: #ef4444;
+            --highlight-bg: #fee2e2;
+            --blue-accent: #3b82f6;
+            --border-color: #e5e7eb;
+            --scroll-box-color: #ccc;
+            --scroll-thumb-color: #888;
+        }
+
+        /* --- Base & Scrollbar from user's provided CSS --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--scroll-box-color); }
+        ::-webkit-scrollbar-thumb { background: var(--scroll-thumb-color); border-radius: 4px; }
+        
+        body {
+            font-family: var(--body-font);
+            background-color: var(--body-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Original chat/report styles updated */
+        .chat-bubble { max-width: 85%; padding: 10px 15px; border-radius: 1.5rem; margin-bottom: 8px; position: relative; }
+        .flavia-bubble { background-color: var(--flavia-bg); border-bottom-left-radius: 0.25rem; text-align: left; margin-right: auto; }
+        .nfc-bubble { background-color: var(--nfc-bg); color: var(--nfc-text); border-bottom-right-radius: 0.25rem; text-align: left; margin-left: auto; }
+
+        .highlight-box {
+            border: 2px solid var(--highlight-border);
+            background-color: var(--highlight-bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .score-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+
+
+        /* --- Layout for Sidebar Toggle (Closeable Sidebar) --- */
+        /* Adjusted width for 1.7/5 ratio (34% of screen) */
+        .sidebar {
+            width: 64px; /* Default collapsed width (icon-only) */
+            transition: width 0.3s ease, transform 0.3s ease;
+            position: fixed;
+            z-index: 50;
+            height: 100%;
+            overflow-x: hidden;
+            background-color: var(--body-color);
+        }
+        .sidebar-open {
+            width: 34vw; /* 1.7 / 5 = 34% of viewport width */
+            max-width: 280px; /* Cap the max width */
+        }
+
+        /* Content inside the sidebar remains fixed max width */
+        .sidebar-content {
+            width: 280px;
+            padding: 1rem;
+            display: flex; /* Flex to push footer to bottom */
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* Main view adaptation to respect sidebar width */
+        .main-content-wrapper {
+            margin-left: 64px; /* Space for collapsed sidebar */
+            transition: margin-left 0.3s ease;
+            width: 100%;
+            min-height: 100vh;
+        }
+        .sidebar-open + .main-content-wrapper {
+            margin-left: min(34vw, 280px); /* Use the dynamic width */
+        }
+
+        /* Centered welcome state (Now centers the whole block vertically and horizontally) */
+        #welcome-view {
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* VERTICALLY CENTERED */
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+            padding-top: 0; /* Remove top padding for true centering */
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+        
+        /* New style for the main greeting - Simulating Machina bold font */
+        #welcome-greeting {
+            font-size: 2.5rem; /* Large and impactful */
+            font-weight: 800; /* Extra bold */
+            letter-spacing: -0.05em;
+            line-height: 1.1;
+        }
+
+        /* Report view (fills available space) */
+        #report-view {
+            overflow-y: auto;
+            min-height: 100vh;
+            padding: 4rem 2rem 10rem 2rem; /* Ensure space for fixed components */
+            z-index: 5;
+            position: relative;
+        }
+
+        /* Fixed components for top right */
+        .fixed-top-right {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 30;
+        }
+        
+        /* Floating Input Area (Managed by JS) */
+        #main-input-container {
+            /* Aligned beneath the greeting text */
+            margin-top: 2.5rem; 
+            z-index: 15;
+            transition: all 0.3s ease-out;
+            max-width: 600px;
+            width: 90%;
+            /* In inline state, it's relative and centered by parent #welcome-view */
+            position: relative; 
+            transform: none; 
+        }
+
+        /* Fixed Input State for Report View */
+        #main-input-container.fixed-bottom {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            width: 90%;
+            max-width: 800px; /* Wider input on report view */
+            background: linear-gradient(to top, var(--body-color) 70%, rgba(0, 0, 0, 0.2));
+            padding: 0;
+        }
+
+        /* Sleek, rounded input field (10px radius) */
+        .minimal-input-wrapper {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-color-input);
+            border-radius: 10px; /* Requested 10px radius */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+            padding: 0.75rem 1rem; /* Increased vertical padding */
+            transition: all 0.3s ease;
+            position: relative;
+            border: 1px solid transparent;
+            /* PERMANENT GLOW EFFECT */
+            animation: glowing 3s infinite alternate;
+        }
+
+        /* Glowing animation CSS */
+        @keyframes glowing {
+            0% { box-shadow: 0 0 5px rgba(255, 80, 17, 0.4), 0 0 10px rgba(255, 80, 17, 0.2); border-color: rgba(255, 80, 17, 0.5); }
+            50% { box-shadow: 0 0 15px var(--skin-color), 0 0 25px rgba(255, 80, 17, 0.8); border-color: var(--skin-color); }
+            100% { box-shadow: 0 0 5px rgba(255, 80, 17, 0.4), 0 0 10px rgba(255, 80, 17, 0.2); border-color: rgba(255, 80, 17, 0.5); }
+        }
+
+        .minimal-input {
+            flex-grow: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-color-primary);
+            resize: none;
+            min-height: 2.5rem; /* ~40px */
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            overflow: hidden; 
+            padding: 0.25rem 0.5rem; 
+        }
+        
+        /* --- Sidebar Logo/Icon Management --- */
+        #sidebar-full-logo { display: block; }
+        #sidebar-icon-logo { display: none; margin: 0 auto; } /* Centering collapsed icon */
+
+        .sidebar:not(.sidebar-open) #sidebar-full-logo { display: none; }
+        .sidebar:not(.sidebar-open) #sidebar-icon-logo {
+            display: block;
+            width: 40px;
+            height: 40px;
+        }
+        /* New CSS for the Close Button position (absolute top right of sidebar content) */
+        #sidebar-close-btn {
+            position: absolute;
+            top: 10px; /* 10px from top */
+            right: 10px; /* 10px from right */
+            z-index: 10;
+        }
+        .sidebar.sidebar-open #sidebar-close-btn {
+            display: block; 
+            color: var(--skin-color); 
+        }
+        .sidebar:not(.sidebar-open) #sidebar-close-btn {
+            display: none;
+        }
+        /* Hide logo when sidebar is open to show full logo */
+        .sidebar.sidebar-open #sidebar-icon-logo { display: none; }
+
+        /* Collapsed Sidebar Footer Styling */
+/* Collapsed Sidebar Footer Styling */
+.sidebar:not(.sidebar-open) .sidebar-footer-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 0;
+}
+.sidebar:not(.sidebar-open) .sidebar-footer-content > div {
+    display: none; /* Hide text elements */
+}
+.sidebar:not(.sidebar-open) .sidebar-footer-content > img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    /* Ensure the avatar is visible */
+    display: block !important;
+}
+
+
+
+        /* Hide default Google Translate bar at the top, but allow widget itself */
+        .goog-te-banner-frame.skiptranslate { display: none !important; }
+        body { top: 0 !important; }
+        .goog-tooltip-bubble { display: none !important; }
+
+        /* Styling for active conversation item */
+        .sidebar-item-active {
+            background-color: var(--skin-color);
+            color: var(--title-color);
+        }
+        .sidebar-item-active p {
+            color: var(--title-color);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex antialiased dark-mode">
+
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, serverTimestamp, deleteDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // IMPORTANT: Global variables for Firebase configuration (provided by Canvas environment)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, db, auth;
+        let globalUserId = null;
+        const APP_VERSION = "V 1.0.1"; // Tool Version Sequence
+
+        // Initialize App State
+        window.appState = {
+            conversations: [],
+            currentConversation: null,
+            // Theme is fixed to 'dark' now. Removed from state.
+            settings: { apiKey: "", username: "Lead Analyst" },
+            isAuthReady: false,
+            geminiApiKey: ""
+        };
+
+        setLogLevel('Debug');
+
+        if (firebaseConfig) {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                window.db = db;
+
+                // 1. Authentication Setup
+                onAuthStateChanged(auth, async (user) => {
+                    if (!user) {
+                        try {
+                            if (initialAuthToken) {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                            } else {
+                                await signInAnonymously(auth);
+                            }
+                        } catch (error) {
+                            console.error("Firebase Auth Error:", error);
+                            globalUserId = 'anon-' + (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9));
+                        }
+                    }
+
+                    globalUserId = auth.currentUser?.uid || globalUserId;
+                    window.appState.isAuthReady = true;
+
+                    // 2. Load User Settings and Conversations
+                    if (globalUserId) {
+                        await loadUserSettings();
+                        setupConversationsListener();
+                    }
+                    // Hide loading state once auth and settings are attempted
+                    document.getElementById('loading-state').style.opacity = '0';
+                    setTimeout(() => { document.getElementById('loading-state').style.display = 'none'; }, 300);
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                document.getElementById('loading-state').innerHTML = '<div class="text-red-500 p-4">Error initializing Firebase. Check console for details.</div>';
+            }
+        } else {
+             document.getElementById('loading-state').innerHTML = '<div class="text-yellow-500 p-4">Firebase config not found. Data persistence is disabled.</div>';
+        }
+
+        // Firestore Paths
+        const getUserSettingsDocRef = (uid) => doc(db, `artifacts/${appId}/users/${uid}/settings/user_settings`);
+        const getConversationsCollectionRef = (uid) => collection(db, `artifacts/${appId}/users/${uid}/conversations`);
+
+        // --- Data Loading and Saving Functions ---
+
+        async function loadUserSettings() {
+            if (!globalUserId) return;
+            const docRef = getUserSettingsDocRef(globalUserId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const settings = docSnap.data();
+                window.appState.settings = {
+                    ...window.appState.settings,
+                    // Only merge necessary settings, ignoring saved 'theme'
+                    apiKey: settings.apiKey || "",
+                    username: settings.username || "Lead Analyst"
+                };
+            }
+
+            // Apply fixed dark theme
+            document.body.classList.remove('dark-mode', 'light-mode');
+            document.body.classList.add('dark-mode');
+            window.appState.geminiApiKey = window.appState.settings.apiKey;
+
+            updateSettingsUI();
+            updateMainViewVisibility();
+        }
+
+        window.saveUserSettings = async () => {
+            if (!globalUserId) return;
+            const settingsModal = document.getElementById('settings-modal');
+            const apiKey = settingsModal.querySelector('#api-key-input').value.trim();
+            const username = settingsModal.querySelector('#username-input').value.trim() || "Lead Analyst";
+
+            // Only save API key and username
+            const newSettings = { apiKey, username };
+
+            try {
+                const docRef = getUserSettingsDocRef(globalUserId);
+                await setDoc(docRef, newSettings, { merge: true });
+
+                window.appState.settings = { ...window.appState.settings, ...newSettings };
+                window.appState.geminiApiKey = apiKey;
+                
+                document.getElementById('save-status').textContent = 'Settings saved successfully!';
+                setTimeout(() => document.getElementById('save-status').textContent = '', 3000);
+
+                updateMainViewVisibility(); 
+
+            } catch (e) {
+                console.error("Error saving settings:", e);
+                document.getElementById('save-status').textContent = 'Error saving settings.';
+            }
+        };
+
+        window.updateSettingsUI = () => {
+            const settings = window.appState.settings;
+            const settingsModal = document.getElementById('settings-modal');
+            if (settingsModal) {
+                settingsModal.querySelector('#api-key-input').value = settings.apiKey;
+                settingsModal.querySelector('#username-input').value = settings.username;
+            }
+            document.getElementById('sidebar-username-display').textContent = settings.username;
+        };
+
+        function setupConversationsListener() {
+            if (!globalUserId) return;
+            const q = query(getConversationsCollectionRef(globalUserId), orderBy("timestamp", "desc"));
+
+            onSnapshot(q, (snapshot) => {
+                const conversations = [];
+                snapshot.forEach(doc => {
+                    conversations.push({ id: doc.id, ...doc.data() });
+                });
+                window.appState.conversations = conversations;
+                renderSidebar();
+            }, (error) => {
+                console.error("Error setting up conversations listener:", error);
+            });
+        }
+
+        window.saveConversation = async (conversation) => {
+            if (!globalUserId) return;
+            const conversationsRef = getConversationsCollectionRef(globalUserId);
+
+            try {
+                if (conversation.id) {
+                    const docRef = doc(conversationsRef, conversation.id);
+                    await setDoc(docRef, {
+                        ...conversation,
+                        timestamp: serverTimestamp()
+                    }, { merge: true });
+                } else {
+                    const newDoc = await addDoc(conversationsRef, {
+                        ...conversation,
+                        timestamp: serverTimestamp()
+                    });
+                    conversation.id = newDoc.id;
+                }
+                return conversation;
+            } catch (e) {
+                console.error("Error saving conversation:", e);
+                return null;
+            }
+        };
+
+        window.deleteConversation = async (id) => {
+            if (!globalUserId) return;
+            try {
+                await deleteDoc(doc(getConversationsCollectionRef(globalUserId), id));
+                if (window.appState.currentConversation?.id === id) {
+                    window.newConversation();
+                }
+            } catch (e) {
+                console.error("Error deleting conversation:", e);
+            }
+        };
+
+        window.eraseAllData = async () => {
+            if (!globalUserId) return;
+            if (!confirm("ARE YOU ABSOLUTELY SURE? This will permanently delete ALL your saved conversations and settings!")) {
+                return;
+            }
+
+            try {
+                const batch = writeBatch(db);
+                const conversationsSnapshot = await getDocs(getConversationsCollectionRef(globalUserId));
+
+                conversationsSnapshot.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+                batch.delete(getUserSettingsDocRef(globalUserId));
+
+                await batch.commit();
+
+                // Clear local state
+                window.appState.conversations = [];
+                window.appState.settings = { apiKey: "", username: "Lead Analyst" };
+                window.appState.geminiApiKey = "";
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+                window.updateSettingsUI();
+                window.newConversation();
+
+                document.getElementById('erase-status').textContent = 'All data erased successfully!';
+                setTimeout(() => document.getElementById('erase-status').textContent = '', 3000);
+
+            } catch (e) {
+                console.error("Error erasing all data:", e);
+                document.getElementById('erase-status').textContent = 'Error erasing data.';
+            }
+        };
+
+
+        // --- UI Rendering Functions ---
+
+        window.renderSidebar = () => {
+            const sidebarList = document.getElementById('conversation-list');
+            if (!sidebarList) return;
+
+            sidebarList.innerHTML = '';
+            window.appState.conversations.forEach(conv => {
+                const isActive = window.appState.currentConversation && window.appState.currentConversation.id === conv.id;
+                const title = conv.title || conv.transcript.substring(0, 30).trim() + '...';
+
+                const li = document.createElement('li');
+                li.className = `p-2 my-1 rounded-lg transition duration-150 ease-in-out cursor-pointer flex justify-between items-center ${isActive ? 'sidebar-item-active shadow-md' : 'hover:bg-mirage-color/50'}`;
+                li.onclick = () => window.loadConversation(conv.id);
+                li.innerHTML = `
+                    <p class="text-sm font-medium text-title-color truncate">${title}</p>
+                    <button class="text-red-400 hover:text-red-600 p-1 rounded-full ${isActive ? 'text-white' : ''}" onclick="event.stopPropagation(); window.deleteConversation('${conv.id}');">
+                        <i class="fas fa-trash-alt text-xs"></i>
+                    </button>
+                `;
+                sidebarList.appendChild(li);
+            });
+        };
+
+        window.loadConversation = (id) => {
+            const conv = window.appState.conversations.find(c => c.id === id);
+            if (conv) {
+                window.appState.currentConversation = conv;
+                document.getElementById('main-transcript-input').value = conv.transcript || '';
+
+                window.updateMainViewVisibility();
+                if (conv.report) {
+                    document.getElementById('report-content-display').innerHTML = window.generateReportHTML(conv.report, conv.transcript);
+                    document.getElementById('report-view').scrollTop = 0;
+                }
+                renderSidebar();
+            }
+        };
+
+        window.newConversation = () => {
+            window.appState.currentConversation = {
+                id: null,
+                title: "New Analysis",
+                transcript: "",
+                report: null
+            };
+            document.getElementById('main-transcript-input').value = '';
+            document.getElementById('report-content-display').innerHTML = '';
+            window.updateMainViewVisibility();
+            renderSidebar();
+        };
+        
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebar');
+            const mainWrapper = document.getElementById('main-content-wrapper');
+            const toggleOpenButton = document.getElementById('sidebar-toggle-open');
+            const sidebarCloseButton = document.getElementById('sidebar-close-btn');
+            const isCurrentlyOpen = sidebar.classList.contains('sidebar-open');
+
+            if (isCurrentlyOpen) {
+                sidebar.classList.remove('sidebar-open');
+                mainWrapper.classList.remove('sidebar-open-main');
+                toggleOpenButton.classList.remove('hidden');
+                sidebarCloseButton.classList.add('hidden');
+            } else {
+                sidebar.classList.add('sidebar-open');
+                mainWrapper.classList.add('sidebar-open-main');
+                toggleOpenButton.classList.add('hidden');
+                sidebarCloseButton.classList.remove('hidden');
+            }
+        };
+
+
+        window.updateMainViewVisibility = () => {
+             const hasReport = window.appState.currentConversation && window.appState.currentConversation.report;
+             const welcomeView = document.getElementById('welcome-view');
+             const reportView = document.getElementById('report-view');
+             const inputContainer = document.getElementById('main-input-container');
+             
+             // Dynamic Greeting logic removed as requested (text is fixed in HTML)
+             
+             if (hasReport) {
+                 welcomeView.classList.add('hidden');
+                 reportView.classList.remove('hidden');
+                 inputContainer.classList.add('fixed-bottom'); // Switch to fixed position
+             } else {
+                 welcomeView.classList.remove('hidden');
+                 reportView.classList.add('hidden');
+                 inputContainer.classList.remove('fixed-bottom'); // Switch to inline position
+             }
+        };
+
+        window.generateReportHTML = (report, transcript) => {
+            const { overallScore, finalVerdict, summary, scores } = report;
+
+            const scoreToText = (score) => {
+                if (score >= 4.5) return 'HIGH';
+                if (score >= 3.5) return 'GOOD';
+                if (score >= 2.5) return 'MODERATE';
+                if (score >= 1.5) return 'LOW';
+                return 'MISSING';
+            };
+
+            const scoreToColor = (score) => {
+                if (score >= 4) return 'text-green-400';
+                if (score >= 3) return 'text-yellow-400';
+                if (score >= 2) return 'text-orange-400';
+                return 'text-red-400';
+            };
+
+            const renderScoreRow = (key, data) => `
+                <div class="p-4 rounded-lg shadow-md" style="background-color: var(--mirage-color); border: 1px solid var(--mirage-color)">
+                    <div class="score-row" style="border-bottom: 2px solid var(--mirage-color)">
+                        <div class="font-bold text-lg text-title-color">${key.toUpperCase()} (${data.score}/5)</div>
+                        <div class="text-lg ${scoreToColor(data.score)} font-extrabold">${scoreToText(data.score)}</div>
+                    </div>
+                    <div class="my-3 text-sm text-text-color">${data.comment}</div>
+                    <div class="highlight-box p-3 rounded-lg" style="background-color: var(--box-color); border-color: var(--skin-color)">
+                        <p class="font-mono text-xs italic opacity-80 text-red-300 mb-1">Supporting Quote:</p>
+                        <p class="text-sm text-title-color">${data.supportingQuote}</p>
+                    </div>
+                </div>
+            `;
+
+            const transcriptToHtml = (text) => {
+                return text.split('\n').map(line => {
+                    const match = line.match(/^(\w+):\s*(.*)/);
+                    if (match) {
+                        const [full, speaker, content] = match;
+                        const speakerClass = speaker.toLowerCase().includes('agent') || speaker.toLowerCase().includes('nfc') ? 'nfc-bubble' : 'flavia-bubble';
+                        return `<div class="flex ${speakerClass === 'nfc-bubble' ? 'justify-end' : 'justify-start'}">
+                                    <div class="chat-bubble ${speakerClass} text-sm">${content}</div>
+                                </div>`;
+                    }
+                    return `<div class="text-xs text-gray-600 my-1 text-center">${line}</div>`;
+                }).join('');
+            };
+
+
+            return `
+                <div class="max-w-4xl mx-auto space-y-8 pb-10">
+                    <div class="text-center">
+                        <h2 class="text-4xl font-extrabold text-title-color">Lead Qualification Report</h2>
+                        <p class="text-text-color mt-2">Analysis generated by Gemini AI</p>
+                    </div>
+
+                    <!-- Overall Score & Verdict -->
+                    <div class="p-6 rounded-xl shadow-xl border" style="background-color: var(--box-color); border-color: var(--mirage-color)">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <p class="text-sm font-medium text-text-color">Overall Qualification Score</p>
+                                <p class="text-5xl font-black ${scoreToColor(overallScore)}">${overallScore.toFixed(1)}/5.0</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-text-color">Final Verdict</p>
+                                <p class="text-2xl font-bold text-title-color">${finalVerdict}</p>
+                            </div>
+                        </div>
+                        <p class="text-base leading-relaxed text-text-color mt-4">${summary}</p>
+                    </div>
+
+                    <!-- BANT Breakdown -->
+                    <h3 class="text-2xl font-semibold text-title-color pt-4">BANT Breakdown</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        ${renderScoreRow('Budget', scores.budget)}
+                        ${renderScoreRow('Authority', scores.authority)}
+                        ${renderScoreRow('Need', scores.need)}
+                        ${renderScoreRow('Timeline', scores.timeline)}
+                    </div>
+
+                    <!-- Transcript Visualization -->
+                    <h3 class="text-2xl font-semibold text-title-color pt-4 border-t" style="border-color: var(--mirage-color)">Original Transcript</h3>
+                    <div class="p-6 rounded-xl shadow-inner max-h-96 overflow-y-auto border" style="background-color: var(--body-color); border-color: var(--mirage-color)">
+                        ${transcriptToHtml(transcript)}
+                    </div>
+                </div>
+            `;
+        };
+
+        // --- Core Application Logic (Single Input) ---
+
+        window.handleLeadAnalysis = async () => {
+            const transcript = document.getElementById('main-transcript-input').value.trim();
+            const analyzeButton = document.getElementById('main-analyze-button');
+            const reportContentDisplay = document.getElementById('report-content-display');
+
+            if (!transcript) {
+                alert('Please paste or upload a conversation transcript.');
+                return;
+            }
+
+            if (!window.appState.geminiApiKey) {
+                alert('Please set your Google Gemini API Key in the Settings modal before analyzing leads.');
+                document.getElementById('settings-modal-wrapper').classList.remove('hidden');
+                return;
+            }
+
+            // Show loading state
+            analyzeButton.disabled = true;
+            analyzeButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            reportContentDisplay.innerHTML = `<div class="text-center p-10 text-xl" style="color: var(--skin-color)">AI is generating qualification report...</div>`;
+            
+            // Ensure view switches to report view
+            window.updateMainViewVisibility(); 
+
+            const apiKey = window.appState.geminiApiKey;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const systemPrompt = `You are a sophisticated Lead Qualification Analyst AI. Your task is to analyze the provided chat transcript and generate a comprehensive qualification report structured in JSON format. The analysis must strictly adhere to the BANT framework: Budget (B), Authority (A), Need (N), and Timeline (T).
+            Assign a score from 1 (Low/Missing) to 5 (High/Clear) for each BANT category. You MUST use the exact JSON schema provided.
+            1. overallScore: The average of the four BANT scores (rounded to one decimal place).
+            2. finalVerdict: A concise verdict (e.g., "Highly Qualified", "Requires Nurturing", "Window Shopper").
+            3. summary: A detailed, professional paragraph explaining the overall lead status and key findings.
+            4. scores: An object containing four keys (budget, authority, need, timeline), each containing:
+                - score: (Integer 1-5) The qualification score.
+                - comment: (String) A brief justification for the score.
+                - supportingQuote: (String) The exact quote from the transcript that best supports the score. If no clear quote exists, use "No clear indication in transcript."`;
+
+            const userQuery = `Analyze the following chat transcript for lead qualification based on the BANT framework:\n\n---\n${transcript}\n---`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            overallScore: { type: "NUMBER" },
+                            finalVerdict: { type: "STRING" },
+                            summary: { type: "STRING" },
+                            scores: {
+                                type: "OBJECT",
+                                properties: {
+                                    budget: { type: "OBJECT", properties: { score: { type: "INTEGER" }, comment: { type: "STRING" }, supportingQuote: { type: "STRING" } } },
+                                    authority: { type: "OBJECT", properties: { score: { type: "INTEGER" }, comment: { type: "STRING" }, supportingQuote: { type: "STRING" } } },
+                                    need: { type: "OBJECT", properties: { score: { type: "INTEGER" }, comment: { type: "STRING" }, supportingQuote: { type: "STRING" } } },
+                                    timeline: { type: "OBJECT", properties: { score: { type: "INTEGER" }, comment: { type: "STRING" }, supportingQuote: { type: "STRING" } } },
+                                },
+                            }
+                        },
+                        required: ["overallScore", "finalVerdict", "summary", "scores"]
+                    }
+                }
+            };
+
+            let response;
+            for (let i = 0; i < 3; i++) {
+                try {
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) break;
+                } catch (error) {
+                    console.warn(`Attempt ${i + 1} failed:`, error);
+                }
+                if (i < 2) await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+            }
+
+            try {
+                if (!response || !response.ok) {
+                    throw new Error(`API call failed with status: ${response ? response.status : 'Network Error'}`);
+                }
+
+                const result = await response.json();
+                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!jsonText) throw new Error("Received empty or malformed response from AI.");
+
+                const report = JSON.parse(jsonText);
+
+                let currentConv = window.appState.currentConversation || {
+                    id: null,
+                    title: `Analysis - ${report.finalVerdict}`,
+                    transcript: transcript,
+                    report: report
+                };
+
+                if (!currentConv.id) {
+                    currentConv.title = `Analysis - ${report.finalVerdict}`;
+                    currentConv.transcript = transcript;
+                }
+                currentConv.report = report;
+                window.appState.currentConversation = await window.saveConversation(currentConv);
+
+                reportContentDisplay.innerHTML = window.generateReportHTML(report, transcript);
+                document.getElementById('report-view').scrollTop = 0;
+
+            } catch (error) {
+                console.error("Error processing AI response:", error);
+                reportContentDisplay.innerHTML = `<div class="p-10 text-red-500">An error occurred during analysis. Ensure your API Key is valid and the transcript is clear. Details: ${error.message}</div>`;
+            } finally {
+                analyzeButton.disabled = false;
+                analyzeButton.innerHTML = '<i class="fas fa-arrow-up"></i>';
+            }
+        };
+
+        // --- File Upload Handler (Single Input) ---
+        window.handleFileUpload = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const mainInput = document.getElementById('main-transcript-input');
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target.result;
+                mainInput.value = text;
+                mainInput.focus();
+            };
+
+            reader.readAsText(file);
+        };
+
+        // --- PDF Download Feature ---
+        window.downloadReportAsPDF = () => {
+            const reportElement = document.getElementById('report-content-display');
+            if (!reportElement || !window.appState.currentConversation?.report) {
+                alert('No report has been generated yet.');
+                return;
+            }
+
+            // Temporarily hide elements that shouldn't be in the PDF
+            const tempHideElements = document.querySelectorAll('.hide-for-pdf');
+            tempHideElements.forEach(el => el.style.display = 'none');
+            
+            html2canvas(reportElement, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#141414',
+                windowWidth: reportElement.scrollWidth,
+                windowHeight: reportElement.scrollHeight,
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210;
+                const pageHeight = 295;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save("Lead_Qualification_Report.pdf");
+
+                // Restore hidden elements
+                tempHideElements.forEach(el => el.style.display = '');
+            });
+        };
+
+
+        // --- Google Translate Feature ---
+        window.googleTranslateElementInit = () => {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false
+            }, 'google_translate_element_container');
+        };
+
+
+        // Initial setup calls
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set version display
+            document.getElementById('sidebar-version-display').textContent = APP_VERSION;
+            
+            if (!window.appState.currentConversation) {
+                window.newConversation();
+            }
+
+            // Sidebar initial state setup (Always start open)
+            document.getElementById('sidebar').classList.add('sidebar-open');
+            document.getElementById('main-content-wrapper').classList.add('sidebar-open-main');
+
+            // Scroll to top button logic
+            const backToTopButton = document.getElementById('back-to-top');
+            const reportView = document.getElementById('report-view');
+
+            if (reportView && backToTopButton) {
+                reportView.onscroll = function() {
+                    if (!reportView.classList.contains('hidden') && reportView.scrollTop > 300) {
+                        backToTopButton.style.display = "block";
+                    } else {
+                        backToTopButton.style.display = "none";
+                    }
+                };
+            }
+
+            backToTopButton.onclick = function() {
+                reportView.scrollTop = 0;
+            };
+
+            // Enforce dark mode on load
+            document.body.classList.add('dark-mode');
+        });
+
+    </script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+
+    <!-- Loading State -->
+    <div id="loading-state" class="fixed inset-0 flex items-center justify-center z-50" style="background-color: var(--body-color)">
+        <div class="p-6 rounded-xl shadow-2xl text-center" style="background-color: var(--box-color)">
+            <i class="fas fa-compass fa-spin text-4xl" style="color: var(--skin-color)"></i>
+            <p class="text-lg font-semibold" style="color: var(--text-color); margin-top: 0.75rem;">Initializing Lead Qualifier...</p>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div class="flex h-screen w-full">
+
+        <!-- Sidebar (Left) -->
+        <aside id="sidebar" class="sidebar bg-body-color border-r border-mirage-color transition-colors duration-300 flex flex-col">
+            <div class="sidebar-content h-full">
+                <!-- Sidebar Header & Logo/Icon -->
+                <div class="py-4 border-b px-4 flex flex-col flex-shrink-0 relative" style="border-color: var(--mirage-color)">
+                    
+                    <!-- Close Button (Absolute position: 10px from top and right) -->
+                    <button id="sidebar-close-btn" class="p-1 rounded-full text-skin-color hover:opacity-80 transition hidden absolute top-[10px] right-[10px] z-10" onclick="window.toggleSidebar()" title="Close Sidebar">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                    
+                    <!-- Full Logo (Open State) -->
+                    <img id="sidebar-full-logo" src="https://ik.imagekit.io/bebell/LeadLens/Logo%20Showcase%20-%20AI%20(2).png" alt="Brand Logo" class="w-full h-auto mt-4" style="border-radius: 4px;">
+                    <!-- Icon Logo (Closed State) -->
+                    <img id="sidebar-icon-logo" src="https://ik.imagekit.io/bebell/LeadLens/logo-horizontal-leadlens.png" alt="Brand Icon" class="w-8 h-8 object-cover hidden">
+                </div>
+
+                <!-- New Chat Button -->
+                <div class="my-4 px-4 flex-shrink-0">
+                    <button onclick="window.newConversation()" class="w-full bg-skin-color hover:opacity-90 text-title-color font-semibold py-2 rounded-lg transition duration-150 ease-in-out flex items-center justify-center">
+                        <i class="fas fa-plus mr-2"></i> New chat
+                    </button>
+                </div>
+                
+                <!-- Conversation History List -->
+                <div class="flex-1 overflow-y-auto px-4 pr-3">
+                    <ul id="conversation-list" class="space-y-1">
+                        <!-- History items will be rendered here by JS -->
+                    </ul>
+                </div>
+
+                <!-- Sidebar Footer (Avatar, Username, Version) - Opens Settings Modal -->
+                <div class="mt-auto pt-4 border-t px-4 flex-shrink-0 cursor-pointer hover:bg-mirage-color/50 transition duration-150 rounded-t-lg" style="border-color: var(--mirage-color)" onclick="document.getElementById('settings-modal-wrapper').classList.remove('hidden')">
+                    <div class="flex items-center space-x-3 p-2 sidebar-footer-content">
+                        <img src="https://placehold.co/40x40/ff5011/white?text=U" alt="User Profile" class="w-10 h-10 rounded-full object-cover ring-2" style="border-color: var(--skin-color)">
+                        <div>
+                            <p class="text-sm font-semibold text-title-color truncate" id="sidebar-username-display">Lead Analyst</p>
+                            <p class="text-xs" style="color: var(--text-color)" id="sidebar-version-display"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Toggle Button for Collapsed Sidebar (Always positioned relative to the collapsed sidebar width) -->
+        <button id="sidebar-toggle-open" class="absolute top-4 left-0 z-50 p-3 rounded-full text-text-color hover:text-skin-color transition hidden" style="background-color: var(--box-color); margin-left: 10px;" onclick="window.toggleSidebar()" title="Open Sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Main Content Area (Right) -->
+        <main id="main-content-wrapper" class="main-content-wrapper flex flex-col flex-1 overflow-x-hidden relative" style="background-color: var(--body-color)">
+            
+            <!-- Fixed Top Right Controls (PDF Only) -->
+            <div class="fixed-top-right flex space-x-3 items-center hide-for-pdf">
+                 <button onclick="window.downloadReportAsPDF()" class="bg-mirage-color hover:bg-mirage-color/70 text-title-color font-semibold py-2 px-3 rounded-lg shadow-md transition text-sm">
+                    <i class="fas fa-file-pdf mr-1"></i> PDF
+                </button>
+            </div>
+
+            <!-- 1. Welcome View (Centered Content) -->
+            <div id="welcome-view" class="w-full flex-col p-4">
+                <div class="max-w-xl mx-auto flex flex-col items-center w-full">
+                    <!-- Profile Avatar (New Icon) - No border/ring -->
+                    <div class="mb-4">
+                        <img src="https://ik.imagekit.io/bebell/LeadLens/icon%20for%20LeadLens.png" alt="AI Avatar" class="w-30 h-30 rounded-full">
+                    </div>
+                    <!-- Greeting (Bolder, fixed text) -->
+                    <h2 id="welcome-greeting" class="text-title-color text-center" style="font-size: 2.5rem; font-weight: 800; letter-spacing: -0.05em; line-height: 1.1;">Who should we qualify today?</h2>
+                    
+                    <!-- Instructions Beneath Greeting -->
+                    <p class="text-text-color mt-3 text-sm text-center max-w-sm">
+                        Paste or upload a chat transcript. Use "Speaker1: text" format for best results.
+                    </p>
+                
+                    <!-- Single Input Container (Centered beneath greeting) -->
+                    <div id="main-input-container" class="w-full relative">
+                        <div class="minimal-input-wrapper mx-auto max-w-2xl">
+                            <!-- File Upload Option (Icon) -->
+                            <label class="cursor-pointer text-text-color hover:text-skin-color transition pr-3 flex items-center" title="Upload Transcript">
+                                <i class="fas fa-upload text-lg"></i>
+                                <input type="file" id="transcript-file-upload-main" onchange="window.handleFileUpload(event);" class="hidden" accept=".txt,.log,.md">
+                            </label>
+
+                            <!-- Textarea (Sleek Input) -->
+                            <textarea id="main-transcript-input" rows="1" class="minimal-input" placeholder="Start typing or paste transcript..."></textarea>
+
+                            <!-- Analyze Button (Send Icon) -->
+                            <button id="main-analyze-button" onclick="window.handleLeadAnalysis()" class="bg-skin-color hover:opacity-90 text-title-color font-bold p-3 ml-2 rounded-full transition duration-150 ease-in-out">
+                                <i class="fas fa-arrow-up"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Report View (Scrollable Content) -->
+            <div id="report-view" class="hidden relative">
+                <div id="report-content-display">
+                    <!-- Report content will be injected here -->
+                </div>
+                 <!-- Back to Top Button -->
+                <button id="back-to-top" class="hidden fixed bottom-24 right-8 text-title-color p-3 rounded-full shadow-lg transition duration-300" style="background-color: var(--skin-color)" title="Go to top">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
+            </div>
+
+        </main>
+    </div>
+    
+    <!-- Settings Modal (Hidden by default) -->
+    <div id="settings-modal-wrapper" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden" onclick="if(event.target.id === 'settings-modal-wrapper') document.getElementById('settings-modal-wrapper').classList.add('hidden')">
+        <div id="settings-modal" class="rounded-xl shadow-2xl p-6 sm:p-8 w-11/12 max-w-lg transition-all duration-300 transform scale-100 border" style="background-color: var(--box-color); border-color: var(--mirage-color)" onclick="event.stopPropagation()">
+            <h3 class="text-2xl font-bold mb-6 border-b pb-2 text-title-color" style="border-color: var(--mirage-color)">User Settings & API Access</h3>
+
+           
+           
+           <div class="space-y-5">
+             
+                <!-- Profile Section -->
+                <div class="flex items-center space-x-4 pb-4 border-b" style="border-color: var(--mirage-color)">
+                    <img src="https://placehold.co/60x60/ff5011/white?text=U" alt="User Profile" class="w-16 h-16 rounded-full object-cover ring-2" style="border-color: var(--skin-color)">
+                    <div class="flex-1">
+                        <label for="username-input" class="block text-sm font-medium text-text-color">Username</label>
+                        <input type="text" id="username-input" placeholder="Your Name" class="mt-1 block w-full p-2 border rounded-md shadow-sm text-title-color" style="background-color: var(--mirage-color); border-color: var(--mirage-color)">
+                    </div>
+                </div>
+                
+                
+                
+
+                <!-- API Key Section (BYOK) -->
+                <div>
+                    <label for="api-key-input" class="block text-sm font-medium text-text-color mb-2">Gemini API Key (BYOK)</label>
+                    <input type="password" id="api-key-input" placeholder="Enter your Google Gemini API Key" class="mt-1 block w-full p-2 border border-red-700 rounded-md shadow-sm focus:ring-skin-color focus:border-skin-color text-title-color" style="background-color: var(--mirage-color)">
+                    <p class="mt-2 text-xs text-red-400">Required for AI analysis. Your key is saved securely using Firestore.</p>
+                </div>
+
+                <!-- Language Selector -->
+                <div class="pt-2 border-b pb-4" style="border-color: var(--mirage-color)">
+                    <p class="block text-sm font-medium text-text-color mb-2">Translate UI</p>
+                    <div id="google_translate_element_container" class="text-sm"></div>
+                </div>
+
+                <!-- Subscription Settings (Placeholder) -->
+                <div>
+                    <label class="block text-sm font-medium text-text-color">Subscription Settings</label>
+                    <p class="mt-1 text-sm text-text-color">Current Plan: Pro Analyst (Mock)</p>
+                    <details class="mt-2 p-2 border rounded-md" style="border-color: var(--mirage-color)">
+                        <summary class="font-medium cursor-pointer text-title-color">Canceling Instructions (PayPal)</summary>
+                        <p class="text-xs mt-2 text-text-color">To cancel your subscription, please follow the instructions on your PayPal account's 'Automatic Payments' section.</p>
+                        <a href="#" class="hover:underline text-xs" style="color: var(--skin-color)" onclick="alert('This is a placeholder for a link to PayPal settings.')">Go to PayPal Payments</a>
+                    </details>
+                </div>
+
+                <!-- Data Management -->
+                <div class="pt-4 border-t" style="border-color: var(--mirage-color)">
+                    <button onclick="window.eraseAllData()" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-2 rounded-lg transition">
+                        <i class="fas fa-trash-alt mr-2"></i> ERASE ALL DATA SAVED
+                    </button>
+                    <p id="erase-status" class="mt-2 text-center text-sm text-green-500"></p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-6 flex justify-end space-x-3">
+                <button onclick="window.saveUserSettings()" class="bg-skin-color hover:opacity-90 text-title-color font-semibold py-2 px-4 rounded-lg transition">Save Settings</button>
+                <button onclick="document.getElementById('settings-modal-wrapper').classList.add('hidden')" class="bg-mirage-color hover:bg-mirage-color/70 text-title-color font-semibold py-2 px-4 rounded-lg transition">Close</button>
+            </div>
+            <p id="save-status" class="mt-2 text-center text-sm text-green-500"></p>
+        </div>
+    </div>
+</body>
+</html>
