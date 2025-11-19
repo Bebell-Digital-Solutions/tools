@@ -46,6 +46,9 @@
             /* Scrollbar/Misc */
             --scroll-box-color: var(--box-color);
             --scroll-thumb-color: var(--skin-color);
+            
+            /* New API Key Validation Colors */
+            --api-key-valid-color: #10B981; /* Tailwind green-500 */
         }
 
         /* Light mode colors remain defined but are unused by JS for simplicity */
@@ -221,7 +224,7 @@
             padding: 0;
         }
 
-        /* Glowing animation CSS */
+        /* Glowing animation CSS (Input Field) */
         @keyframes glowing {
             0% { 
                 box-shadow: 0 0 5px rgba(255, 80, 17, 0.4), 0 0 10px rgba(255, 80, 17, 0.2); 
@@ -243,7 +246,7 @@
             display: flex;
             align-items: center;
             background-color: var(--bg-color-input);
-            border-radius: 20px; /* Keeping 20px radius from previous version */
+            border-radius: 20px; 
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
             padding: 0.75rem 1rem; 
             transition: all 0.3s ease;
@@ -268,6 +271,19 @@
             align-items: center;
             overflow: hidden; 
             padding: 0.25rem 0.5rem; 
+        }
+        
+        /* API Key Specific Styling */
+        #api-key-input.api-key-valid {
+            border-color: var(--api-key-valid-color) !important;
+            /* Applying a subtle green box-shadow for the 'glow' effect */
+            box-shadow: 0 0 3px 1px rgba(16, 185, 129, 0.5); 
+        }
+        
+        /* Reset border color when empty (Focus style handles user typing/invalid state) */
+        #api-key-input:not(:focus):not(.api-key-valid) {
+            border-color: var(--mirage-color) !important;
+            box-shadow: none !important;
         }
         
         /* --- Sidebar Logo/Icon Management --- */
@@ -519,12 +535,14 @@
 
         window.saveUserSettings = async () => {
             const settingsModal = document.getElementById('settings-modal');
-            const apiKey = settingsModal.querySelector('#api-key-input').value.trim();
+            const apiKeyInput = settingsModal.querySelector('#api-key-input');
+            const apiKey = apiKeyInput.value.trim();
             const username = settingsModal.querySelector('#username-input').value.trim() || "Lead Analyst";
             const profilePictureBase64 = window.appState.settings.profilePictureBase64 || DEFAULT_AVATAR;
 
             const newSettings = { apiKey, username, profilePictureBase64 };
             let saveSuccess = false;
+            const statusElement = document.getElementById('save-status');
 
             // 1. Save to localStorage (Backup/Local persistence)
             try {
@@ -546,12 +564,13 @@
                 }
             }
             
-            // Update UI
-            const statusElement = document.getElementById('save-status');
-            if (saveSuccess) {
+            // 3. Update UI and apply green glow/border
+            if (apiKey.length > 0) {
+                apiKeyInput.classList.add('api-key-valid');
                 statusElement.textContent = 'Settings saved successfully!';
             } else {
-                statusElement.textContent = 'Error: Could not save settings.';
+                apiKeyInput.classList.remove('api-key-valid');
+                statusElement.textContent = 'Settings saved (API Key removed)!';
             }
             setTimeout(() => statusElement.textContent = '', 3000);
 
@@ -565,7 +584,6 @@
 
             // Simple size check (limit to 500KB to prevent oversized Firestore documents)
             if (file.size > 500 * 1024) {
-                // FIX: Replaced alert() with console/status message
                 console.error('Image file is too large. Please select an image under 500KB.');
                 document.getElementById('upload-status').textContent = 'Error: Image file is too large (> 500KB).';
                 event.target.value = null; // Reset file input
@@ -595,8 +613,16 @@
             
             // Update username in modal and sidebar
             if (settingsModal) {
-                settingsModal.querySelector('#api-key-input').value = settings.apiKey;
+                const apiKeyInput = settingsModal.querySelector('#api-key-input');
+                apiKeyInput.value = settings.apiKey;
                 settingsModal.querySelector('#username-input').value = settings.username;
+                
+                // Apply green glow on load if key is present
+                if (settings.apiKey && settings.apiKey.length > 0) {
+                    apiKeyInput.classList.add('api-key-valid');
+                } else {
+                    apiKeyInput.classList.remove('api-key-valid');
+                }
             }
             document.getElementById('sidebar-username-display').textContent = settings.username;
             
@@ -1167,10 +1193,10 @@
             const analyzeButton = document.getElementById('main-analyze-button');
             const analyzeButtonIcon = document.getElementById('analyze-button-icon'); // Get the SVG element
             const reportContentDisplay = document.getElementById('report-content-display');
+            const RUN_ICON_URL = "https://bucket.mlcdn.com/a/3336/3336910/images/900217d3be86945033e1ab943412dd93825c9b0c.png";
 
             if (!transcript) {
                 console.error('Please paste or upload a conversation transcript.');
-                // Optional: Provide UI feedback here if desired
                 return;
             }
 
@@ -1304,6 +1330,7 @@
                 currentConv.transcript = transcript;
                 window.appState.currentConversation = currentConv; // Update local state
                 
+                // IMPORTANT: This injects the new HTML, making the report visible.
                 reportContentDisplay.innerHTML = window.generateReportHTML(report, transcript);
                 document.getElementById('report-view').scrollTop = 0;
 
@@ -1313,7 +1340,7 @@
             } finally {
                 analyzeButton.disabled = false;
                 // Re-inject the image after loading is complete
-                analyzeButton.innerHTML = `<img id="analyze-button-icon" src="https://bucket.mlcdn.com/a/3336/3336910/images/900217d3be86945033e1ab943412dd93825c9b0c.png" alt="Analyze" class="w-10 h-10">`;
+                analyzeButton.innerHTML = `<img id="analyze-button-icon" src="${RUN_ICON_URL}" alt="Analyze" class="w-10 h-10">`;
                 window.updateSaveButtonVisibility(); // Show save button if new report exists
             }
         };
@@ -1501,7 +1528,6 @@
                     <!-- Single Input Container (Centered beneath greeting) --><div id="main-input-container" class="w-full relative">
                         <div class="minimal-input-wrapper mx-auto max-w-2xl">
                             <!-- File Upload Option (Icon) - CLOUD-ARROW-UP -->
-                            <!-- FIX: Changed class to mr-2 for symmetrical spacing with ml-2 on the Analyze button -->
                             <label class="cursor-pointer text-text-color hover:text-skin-color transition mr-2 flex items-center" title="Upload Transcript">
                                 <i class="fas fa-cloud-arrow-up text-lg"></i>
                                 <input type="file" id="transcript-file-upload-main" onchange="window.handleFileUpload(event);" class="hidden" accept=".txt,.log,.md">
@@ -1555,8 +1581,9 @@
 
                 <!-- API Key Section (BYOK) --><div>
                     <label for="api-key-input" class="block text-sm font-medium text-text-color mb-2">Gemini API Key (BYOK)</label>
+                    <!-- Updated class to apply default red border and focus styles -->
                     <input type="password" id="api-key-input" placeholder="Enter your Google Gemini API Key" class="mt-1 block w-full p-2 border border-red-700 rounded-md shadow-sm focus:ring-skin-color focus:border-skin-color text-title-color" style="background-color: var(--mirage-color)">
-                    <p class="mt-2 text-xs text-red-400">Required for AI analysis. Your key is saved securely using **Browser Storage** (and Firestore if available).</p>
+                    <p class="mt-2 text-xs text-red-400">Required for AI analysis. You can generate a key at <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" class="text-skin-color hover:underline font-semibold">Google AI Studio</a>.</p>
                 </div>
 
                 <!-- Privacy Notice (New) --><div class="bg-yellow-900/20 p-3 rounded-md border border-yellow-700/50">
