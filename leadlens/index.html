@@ -4,16 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gemini Lead Qualifier: AI Prospect Analysis</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMD/CDQ6K+wQWvEiwE5XWfG82QeP+21S9mYg60G0LgR8L+gGv0yqXF2n5G+J5Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- Load required libraries for PDF generation (html2canvas, jsPDF) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome for icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Load required libraries for PDF generation (html2canvas, jsPDF) --><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <!-- Use Inter font -->
-    <style>
+    <!-- Use Inter font --><style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
         /* New Color Palette and Base Styles */
@@ -36,7 +32,7 @@
             --bg-color-main: var(--body-color);
             --text-color-primary: var(--title-color);
             --bg-color-sidebar: var(--body-color);
-            --bg-color-input: var(--mirage-color);
+            --bg-color-input: #1b1c1d; /* Keeping previous dark input color for contrast with glow */
             --bg-color-report: var(--box-color);
             --color-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
             --flavia-bg: var(--mirage-color); /* Prospect */
@@ -104,9 +100,8 @@
 
 
         /* --- Layout for Sidebar Toggle (Closeable Sidebar) --- */
-        /* Adjusted width for 1.7/5 ratio (34% of screen) */
         .sidebar {
-            width: 64px; /* Default collapsed width (icon-only) */
+            width: 64px; 
             transition: width 0.3s ease, transform 0.3s ease;
             position: fixed;
             z-index: 50;
@@ -115,39 +110,49 @@
             background-color: var(--body-color);
         }
         .sidebar-open {
-            width: 34vw; /* 1.7 / 5 = 34% of viewport width */
-            max-width: 280px; /* Cap the max width */
+            width: 34vw; 
+            max-width: 280px; 
         }
 
         /* Content inside the sidebar remains fixed max width */
         .sidebar-content {
             width: 280px;
             padding: 1rem;
-            display: flex; /* Flex to push footer to bottom */
+            display: flex; 
             flex-direction: column;
             height: 100%;
         }
 
         /* Main view adaptation to respect sidebar width */
         .main-content-wrapper {
-            margin-left: 64px; /* Space for collapsed sidebar */
+            margin-left: 64px; 
             transition: margin-left 0.3s ease;
             width: 100%;
             min-height: 100vh;
         }
         .sidebar-open + .main-content-wrapper {
-            margin-left: min(34vw, 280px); /* Use the dynamic width */
+            margin-left: min(34vw, 280px); 
+        }
+
+        /* NEW: Hide the border-top on the sidebar footer when closed */
+        .sidebar:not(.sidebar-open) .sidebar-footer-border {
+            border-top: none !important;
+        }
+        
+        /* UPDATED: Sidebar border color change */
+        #sidebar {
+            border-right: 1px solid #1b1c1d;
         }
 
         /* Centered welcome state (Now centers the whole block vertically and horizontally) */
         #welcome-view {
             display: flex;
             flex-direction: column;
-            justify-content: center; /* VERTICALLY CENTERED */
+            justify-content: center; 
             align-items: center;
             height: 100vh;
             width: 100%;
-            padding-top: 0; /* Remove top padding for true centering */
+            padding-top: 0; 
             position: absolute;
             top: 0;
             left: 0;
@@ -156,8 +161,8 @@
         
         /* New style for the main greeting - Simulating Machina bold font */
         #welcome-greeting {
-            font-size: 2.5rem; /* Large and impactful */
-            font-weight: 800; /* Extra bold */
+            font-size: 2.5rem; 
+            font-weight: 800; 
             letter-spacing: -0.05em;
             line-height: 1.1;
         }
@@ -166,7 +171,7 @@
         #report-view {
             overflow-y: auto;
             min-height: 100vh;
-            padding: 4rem 2rem 10rem 2rem; /* Ensure space for fixed components */
+            padding: 4rem 2rem 10rem 2rem; 
             z-index: 5;
             position: relative;
         }
@@ -180,14 +185,14 @@
         }
         
         /* FIX: Custom CSS for PDF Button Hover */
-        .fixed-top-right button[title="Download PDF"]:hover {
-            background-color: var(--mirage-color) !important; /* Force dark gray background on hover */
+        .pdf-button-style:hover {
+            background-color: var(--mirage-color) !important; 
         }
         
         /* FIX: Custom CSS for PDF Button Default Style */
         .pdf-button-style {
-            background-color: var(--skin-color); /* Guaranteed orange on default */
-            color: white; /* Guaranteed white icon on default */
+            background-color: var(--skin-color) !important; 
+            color: white; 
         }
 
         /* Floating Input Area (Managed by JS) */
@@ -216,28 +221,39 @@
             padding: 0;
         }
 
-        /* Sleek, rounded input field (10px radius) */
+        /* Glowing animation CSS */
+        @keyframes glowing {
+            0% { 
+                box-shadow: 0 0 5px rgba(255, 80, 17, 0.4), 0 0 10px rgba(255, 80, 17, 0.2); 
+                border-color: rgba(255, 80, 17, 0.5); 
+            }
+            50% { 
+                box-shadow: 0 0 15px var(--skin-color), 0 0 25px rgba(255, 80, 17, 0.8); 
+                border-color: var(--skin-color); 
+            }
+            100% { 
+                box-shadow: 0 0 5px rgba(255, 80, 17, 0.4), 0 0 10px rgba(255, 80, 17, 0.2); 
+                border-color: rgba(255, 80, 17, 0.5); 
+            }
+        }
+
+        /* Sleek, rounded input field (20px radius) */
         .minimal-input-wrapper {
             width: 100%;
             display: flex;
             align-items: center;
             background-color: var(--bg-color-input);
-            border-radius: 10px; /* Requested 10px radius */
+            border-radius: 20px; /* Keeping 20px radius from previous version */
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-            padding: 0.75rem 1rem; /* Increased vertical padding */
+            padding: 0.75rem 1rem; 
             transition: all 0.3s ease;
             position: relative;
             border: 1px solid transparent;
+
             /* PERMANENT GLOW EFFECT */
             animation: glowing 3s infinite alternate;
         }
 
-        /* Glowing animation CSS */
-        @keyframes glowing {
-            0% { box-shadow: 0 0 5px rgba(255, 80, 17, 0.4), 0 0 10px rgba(255, 80, 17, 0.2); border-color: rgba(255, 80, 17, 0.5); }
-            50% { box-shadow: 0 0 15px var(--skin-color), 0 0 25px rgba(255, 80, 17, 0.8); border-color: var(--skin-color); }
-            100% { box-shadow: 0 0 5px rgba(255, 80, 17, 0.4), 0 0 10px rgba(255, 80, 17, 0.2); border-color: rgba(255, 80, 17, 0.5); }
-        }
 
         .minimal-input {
             flex-grow: 1;
@@ -345,12 +361,25 @@
         .case-study-report .report-score-row-border {
             border-color: #d1d5db; /* Lighter border for score rows */
         }
+
+        /* --- Centerpiece Icon Hover Style (Remove Glow) --- */
+        #centerpiece-icon {
+            transition: transform 0.3s ease-in-out; /* Keep transform for lift/grow */
+            border: none; 
+            border-radius: 0.75rem; 
+            box-shadow: none; 
+        }
+        #centerpiece-icon:hover {
+            transform: translateY(-8px) scale(1.05); /* Lift and grow slightly */
+            cursor: pointer;
+            border: none;
+            box-shadow: none; 
+        }
     </style>
 </head>
 <body class="min-h-screen flex antialiased dark-mode">
 
-    <!-- Firebase SDK Imports -->
-    <script type="module">
+    <!-- Firebase SDK Imports --><script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, serverTimestamp, deleteDoc, getDocs, writeBatch, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -363,7 +392,7 @@
         
         // Default avatar image (used if none is uploaded)
         const DEFAULT_AVATAR = "https://ik.imagekit.io/bebell/LeadLens/Picture%20Avatar%20(1).png"; 
-        const LOCAL_STORAGE_KEY = 'geminiLeadQualifierSettings'; // New key for localStorage
+        const LOCAL_STORAGE_KEY = 'geminiLeadQualifierSettings'; 
 
         let app, db, auth;
         let globalUserId = null;
@@ -426,11 +455,11 @@
         } else {
              document.getElementById('loading-state').innerHTML = '<div class="text-yellow-500 p-4">Firebase config not found. Data persistence is disabled. Using browser storage.</div>';
              
-             // Proceed to main app view even without config, using local storage
+             // Proceed to main app view even without config, using local storage for settings simulation
              globalUserId = 'persistence-disabled-user';
              window.appState.isAuthReady = true;
-             loadUserSettings(); // Load from local storage immediately
-
+             loadUserSettings(); 
+             
              // Hide loading screen after a short delay so the user can read the message
              setTimeout(() => {
                  document.getElementById('loading-state').style.opacity = '0';
@@ -438,29 +467,27 @@
              }, 1000);
         }
 
-        // Firestore Paths (kept for conversation history)
+        // Firestore Paths
         const getUserSettingsDocRef = (uid) => doc(db, `artifacts/${appId}/users/${uid}/settings/user_settings`);
         const getConversationsCollectionRef = (uid) => collection(db, `artifacts/${appId}/users/${uid}/conversations`);
 
-        // --- Data Loading and Saving Functions (MODIFIED FOR localStorage) ---
+        // --- Data Loading and Saving Functions ---
 
         async function loadUserSettings() {
-            // 1. Load defaults
             let loadedSettings = { ...window.appState.settings };
-
-            // 2. Try to load from localStorage (Browser persistence - user requested)
+            
+            // 1. Try to load from localStorage (Browser persistence)
             const localSettingsJson = localStorage.getItem(LOCAL_STORAGE_KEY);
             if (localSettingsJson) {
                 try {
                     const localSettings = JSON.parse(localSettingsJson);
                     loadedSettings = { ...loadedSettings, ...localSettings };
-                    console.debug("Settings loaded from localStorage.");
                 } catch (e) {
                     console.error("Error parsing localStorage settings:", e);
                 }
             }
 
-            // 3. If Firebase is active, try to load from Firestore (Higher priority/centralized if available)
+            // 2. If Firebase is active, try to load from Firestore (Higher priority/centralized if available)
             if (globalUserId && db) {
                 try {
                     const docRef = getUserSettingsDocRef(globalUserId);
@@ -469,24 +496,22 @@
                     if (docSnap.exists()) {
                         const firestoreSettings = docSnap.data();
                         loadedSettings = { ...loadedSettings, ...firestoreSettings };
-                        console.debug("Settings merged from Firestore.");
                     }
                 } catch(e) {
                     console.error("Error loading settings from Firestore:", e);
                 }
             }
 
-            // 4. Apply and set global state
+
             window.appState.settings = {
                 ...loadedSettings,
-                // Ensure profile picture defaults if missing
                 profilePictureBase64: loadedSettings.profilePictureBase64 || DEFAULT_AVATAR
             };
-            window.appState.geminiApiKey = window.appState.settings.apiKey;
 
             // Apply fixed dark theme
             document.body.classList.remove('dark-mode', 'light-mode');
             document.body.classList.add('dark-mode');
+            window.appState.geminiApiKey = window.appState.settings.apiKey;
 
             updateSettingsUI();
             updateMainViewVisibility();
@@ -501,38 +526,37 @@
             const newSettings = { apiKey, username, profilePictureBase64 };
             let saveSuccess = false;
 
-            // 1. Save to localStorage (MANDATORY BROWSER PERSISTENCE - as requested by user)
+            // 1. Save to localStorage (Backup/Local persistence)
             try {
                 localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newSettings));
                 window.appState.settings = { ...window.appState.settings, ...newSettings };
                 window.appState.geminiApiKey = apiKey;
                 saveSuccess = true;
-                console.debug("Settings saved to localStorage.");
             } catch (e) {
                 console.error("Error saving settings to localStorage:", e);
             }
             
-            // 2. Save to Firestore (Optional, but included for complete data structure if persistence is active)
+            // 2. Save to Firestore (If available)
             if (globalUserId && db) {
                 try {
                     const docRef = getUserSettingsDocRef(globalUserId);
                     await setDoc(docRef, newSettings, { merge: true });
-                    console.debug("Settings saved to Firestore.");
                 } catch (e) {
                     console.error("Error saving settings to Firestore:", e);
                 }
             }
             
-            // Update UI based on overall success
+            // Update UI
             const statusElement = document.getElementById('save-status');
             if (saveSuccess) {
                 statusElement.textContent = 'Settings saved successfully!';
-                updateMainViewVisibility(); 
-                updateSettingsUI();
             } else {
-                statusElement.textContent = 'Error: Could not save settings to browser storage.';
+                statusElement.textContent = 'Error: Could not save settings.';
             }
             setTimeout(() => statusElement.textContent = '', 3000);
+
+            updateMainViewVisibility(); 
+            updateSettingsUI();
         };
 
         window.handleProfilePictureUpload = (event) => {
@@ -541,7 +565,7 @@
 
             // Simple size check (limit to 500KB to prevent oversized Firestore documents)
             if (file.size > 500 * 1024) {
-                // Use custom message box instead of alert
+                // FIX: Replaced alert() with console/status message
                 console.error('Image file is too large. Please select an image under 500KB.');
                 document.getElementById('upload-status').textContent = 'Error: Image file is too large (> 500KB).';
                 event.target.value = null; // Reset file input
@@ -583,14 +607,20 @@
         };
 
         function setupConversationsListener() {
-            // Only set up Firestore listener if DB is active
-            if (!globalUserId || !db) return; 
-            const q = query(getConversationsCollectionRef(globalUserId), orderBy("timestamp", "desc"));
+            if (!globalUserId || !db) return;
+            // NOTE: orderBy should be avoided in production unless indexes are created. Sorting here in JavaScript for MVP simplicity.
+            const q = query(getConversationsCollectionRef(globalUserId)); 
 
             onSnapshot(q, (snapshot) => {
                 const conversations = [];
                 snapshot.forEach(doc => {
                     conversations.push({ id: doc.id, ...doc.data() });
+                });
+                // Client-side sort by timestamp (desc)
+                conversations.sort((a, b) => {
+                    const timeA = a.timestamp?.seconds || 0;
+                    const timeB = b.timestamp?.seconds || 0;
+                    return timeB - timeA;
                 });
                 window.appState.conversations = conversations;
                 renderSidebar();
@@ -600,14 +630,11 @@
         }
 
         window.saveConversation = async (conversation) => {
-            if (!globalUserId || !db) {
-                console.warn("Firestore persistence disabled. Conversation not saved.");
-                return conversation; // Return conversation object without saving
-            }
+            if (!globalUserId || !db) return conversation;
             const conversationsRef = getConversationsCollectionRef(globalUserId);
 
             try {
-                if (conversation.id && !conversation.id.startsWith('local-')) { // Check for existing Firestore ID
+                if (conversation.id) {
                     const docRef = doc(conversationsRef, conversation.id);
                     await setDoc(docRef, {
                         ...conversation,
@@ -615,10 +642,8 @@
                         timestamp: serverTimestamp()
                     }, { merge: true });
                 } else {
-                    // It's a brand new conversation or an imported local conversation.
-                    const { id, ...dataToSave } = conversation; // Remove local ID
                     const newDoc = await addDoc(conversationsRef, {
-                        ...dataToSave,
+                        ...conversation,
                         isSaved: true,
                         timestamp: serverTimestamp()
                     });
@@ -648,46 +673,47 @@
         };
 
         window.eraseAllData = async () => {
-            // Use custom modal replacement instead of confirm
+            if (!globalUserId || !db) {
+                console.error('Persistence is disabled.');
+                document.getElementById('erase-status').textContent = 'Error: Persistence is disabled.';
+                return;
+            }
+            
+            // FIX: Replaced confirm() with non-blocking prompt()
             const result = prompt("To permanently delete ALL saved conversations and settings, type 'DELETE' below:");
             if (result !== "DELETE") {
                 document.getElementById('erase-status').textContent = 'Deletion canceled.';
                 setTimeout(() => document.getElementById('erase-status').textContent = '', 3000);
                 return;
             }
-            
-            // 1. Erase LocalStorage
-            localStorage.removeItem(LOCAL_STORAGE_KEY);
 
-            // 2. Erase Firestore Data
-            if (globalUserId && db) {
-                try {
-                    const batch = writeBatch(db);
-                    const conversationsSnapshot = await getDocs(getConversationsCollectionRef(globalUserId));
+            try {
+                const batch = writeBatch(db);
+                const conversationsSnapshot = await getDocs(getConversationsCollectionRef(globalUserId));
 
-                    conversationsSnapshot.forEach((doc) => {
-                        batch.delete(doc.ref);
-                    });
-                    batch.delete(getUserSettingsDocRef(globalUserId));
+                conversationsSnapshot.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+                batch.delete(getUserSettingsDocRef(globalUserId));
 
-                    await batch.commit();
+                await batch.commit();
 
-                } catch (e) {
-                    console.error("Error erasing all data from Firestore:", e);
-                }
+                // Clear local state
+                window.appState.conversations = [];
+                window.appState.settings = { apiKey: "", username: "Lead Analyst", profilePictureBase64: DEFAULT_AVATAR };
+                window.appState.geminiApiKey = "";
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+                window.updateSettingsUI();
+                window.newConversation();
+
+                document.getElementById('erase-status').textContent = 'All data erased successfully!';
+                setTimeout(() => document.getElementById('erase-status').textContent = '', 3000);
+
+            } catch (e) {
+                console.error("Error erasing all data:", e);
+                document.getElementById('erase-status').textContent = 'Error erasing data.';
             }
-            
-            // Clear local state
-            window.appState.conversations = [];
-            window.appState.settings = { apiKey: "", username: "Lead Analyst", profilePictureBase64: DEFAULT_AVATAR };
-            window.appState.geminiApiKey = "";
-            document.body.classList.remove('light-mode');
-            document.body.classList.add('dark-mode');
-            window.updateSettingsUI();
-            window.newConversation();
-
-            document.getElementById('erase-status').textContent = 'All data erased successfully!';
-            setTimeout(() => document.getElementById('erase-status').textContent = '', 3000);
         };
 
         /**
@@ -704,8 +730,8 @@
                 }),
                 // Add current conversation if it exists and is not already in the list (e.g., unsaved new report)
                 currentConversation: window.appState.currentConversation?.report && 
-                                     !window.appState.currentConversation.id ? 
-                                     window.appState.currentConversation : null
+                                             !window.appState.currentConversation.id ? 
+                                             window.appState.currentConversation : null
             };
 
             const jsonString = JSON.stringify(exportState, null, 2);
@@ -818,8 +844,8 @@
             if (!sidebarList) return;
 
             sidebarList.innerHTML = '';
-            // Only render list if Firebase is active OR if we have local conversations (from import)
-            if (db || window.appState.conversations.length > 0) {
+            // Only render list if persistence is enabled (db is available)
+            if (db) {
                 window.appState.conversations.forEach(conv => {
                     const isActive = window.appState.currentConversation && window.appState.currentConversation.id === conv.id;
                     const title = conv.title || conv.transcript.substring(0, 30).trim() + '...';
@@ -836,16 +862,14 @@
                     sidebarList.appendChild(li);
                 });
             } else {
-                 sidebarList.innerHTML = `<li class="p-2 text-xs text-text-color opacity-70">Conversation history is disabled.</li>`;
+                sidebarList.innerHTML = `<li class="p-2 text-xs text-text-color opacity-70">Conversation history is disabled.</li>`;
             }
         };
 
         window.loadConversation = (id) => {
             const conv = window.appState.conversations.find(c => c.id === id);
             if (conv) {
-                // Determine if this is a saved Firestore item or a temporary imported item
-                const isSavedInFirestore = !id.startsWith('local-');
-                window.appState.currentConversation = { ...conv, isSaved: isSavedInFirestore };
+                window.appState.currentConversation = { ...conv, isSaved: true };
                 document.getElementById('main-transcript-input').value = conv.transcript || '';
 
                 window.updateMainViewVisibility();
@@ -853,8 +877,6 @@
                     document.getElementById('report-content-display').innerHTML = window.generateReportHTML(conv.report, conv.transcript);
                     window.animateCounter('score-counter-display', conv.report.qualificationScore || 0, 500); // Re-run animation
                     document.getElementById('report-view').scrollTop = 0;
-                } else {
-                    document.getElementById('report-content-display').innerHTML = '';
                 }
                 renderSidebar();
             }
@@ -900,7 +922,7 @@
             const currentConv = window.appState.currentConversation;
             
             if (saveButton) {
-                // Show button if a report exists, the DB is active, and it hasn't been saved yet (id is null or isSaved is false)
+                // Show button if a report exists and it hasn't been saved yet (id is null or isSaved is false)
                 const shouldShow = currentConv && currentConv.report && !currentConv.isSaved && db;
                 saveButton.style.display = shouldShow ? 'block' : 'none';
             }
@@ -931,14 +953,10 @@
                 console.error('No report has been generated to save.');
                 return;
             }
-            if (!db) {
-                console.error('Persistence is disabled. Cannot save report.');
-                document.getElementById('save-report-button').textContent = 'Cannot Save (DB Offline)';
-                setTimeout(() => window.updateSaveButtonVisibility(), 3000);
-                return;
-            }
 
             const defaultTitle = `Report - ${currentConv.report.prospectName} (${currentConv.report.finalVerdict}) - ${new Date().toLocaleDateString()}`;
+            
+            // Using prompt instead of confirm() or alert() for UX consistency
             const customTitle = prompt("Enter a custom title for this report:", defaultTitle);
 
             if (customTitle === null) {
@@ -1065,8 +1083,7 @@
                     <h1 class="text-3xl font-extrabold text-gray-800">Lead Qualification Report: Prospect Analysis</h1>
                     <p class="text-xl text-gray-500 mt-2">${escapeHtml(prospectName || 'Unidentified Prospect')} vs. LeadLens AI</p>
 
-                    <!-- Qualification Score Banner with Animation -->
-                    <div class="mt-6 p-4 bg-red-600 rounded-lg text-white flex items-center justify-between shadow-lg">
+                    <!-- Qualification Score Banner with Animation --><div class="mt-6 p-4 bg-red-600 rounded-lg text-white flex items-center justify-between shadow-lg">
                         <div class="flex items-center">
                             <i class="fas fa-chart-line text-2xl mr-3"></i>
                             <span class="text-lg font-medium">Qualification Score (${escapeHtml(finalVerdict)})</span>
@@ -1079,16 +1096,14 @@
                 </header>
 
                 <section class="grid md:grid-cols-3 gap-8 mb-12">
-                    <!-- Overall Summary -->
-                    <div class="bg-blue-50 p-6 rounded-lg shadow-md border-t-4 border-blue-600 flex flex-col items-start md:col-span-3">
+                    <!-- Overall Summary --><div class="bg-blue-50 p-6 rounded-lg shadow-md border-t-4 border-blue-600 flex flex-col items-start md:col-span-3">
                         <i class="fas fa-search-dollar text-3xl text-blue-600 mb-3"></i>
                         <h2 class="text-xl font-semibold mb-2 text-blue-800">Analyst Summary: ${escapeHtml(finalVerdict)}</h2>
                         <p class="text-gray-600">${escapeHtml(summary)}</p>
                     </div>
                 </section>
 
-                <!-- BANT Scoring Section -->
-                <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2 border-gray-200"><i class="fas fa-calculator mr-2 text-green-600"></i>BANT Qualification Breakdown</h2>
+                <!-- BANT Scoring Section --><h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2 border-gray-200"><i class="fas fa-calculator mr-2 text-green-600"></i>BANT Qualification Breakdown</h2>
 
                 <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
                     <h3 class="text-xl font-semibold mb-4 text-gray-800">Qualification Scoring Matrix</h3>
@@ -1110,37 +1125,31 @@
                     </div>
                 </div>
 
-                <!-- Conversation Timeline Section -->
-                <h2 class="text-2xl font-bold mt-12 mb-6 text-gray-800 border-b pb-2 border-gray-200">Conversation Timeline & Key Events</h2>
+                <!-- Conversation Timeline Section --><h2 class="text-2xl font-bold mt-12 mb-6 text-gray-800 border-b pb-2 border-gray-200">Conversation Timeline & Key Events</h2>
 
                 <div id="timeline-container" class="space-y-6">
-                    <!-- Transcript with embedded red flags -->
-                    ${transcriptToHtml(transcript)}
+                    <!-- Transcript with embedded red flags -->${transcriptToHtml(transcript)}
                 </div>
 
-                <!-- Recommendations Section -->
-                <section class="mt-12 pt-8 border-t border-gray-200">
+                <!-- Recommendations Section --><section class="mt-12 pt-8 border-t border-gray-200">
                     <h2 class="text-2xl font-bold mb-4 text-gray-800"><i class="fas fa-lightbulb mr-2 text-yellow-600"></i>Recommended Scripts</h2>
                     <p class="mb-6 text-gray-600">Use these scripts for consistent boundary enforcement based on the behavioral patterns identified in this conversation.</p>
 
-                    <!-- Recommendation 1: Free Work -->
-                    <div class="p-4 report-recommendation-box rounded-lg mb-4 shadow" style="background-color: #fef2f2; border-left-color: #ef4444;">
+                    <!-- Recommendation 1: Free Work --><div class="p-4 report-recommendation-box rounded-lg mb-4 shadow" style="background-color: #fef2f2; border-left-color: #ef4444;">
                         <p class="font-bold text-red-800 mb-1"><i class="fas fa-hand-holding-dollar mr-2"></i>Pattern: Demanding Free Design/Mock-up (Red Flag)</p>
                         <p class="font-mono text-sm bg-white p-3 rounded">
                             **"${getRecommendation('free_work')}"**
                         </p>
                     </div>
 
-                    <!-- Recommendation 2: Price Before Data -->
-                    <div class="p-4 report-recommendation-box rounded-lg mb-4 shadow" style="background-color: #fffbeb; border-left-color: #f59e0b;">
+                    <!-- Recommendation 2: Price Before Data --><div class="p-4 report-recommendation-box rounded-lg mb-4 shadow" style="background-color: #fffbeb; border-left-color: #f59e0b;">
                         <p class="font-bold text-yellow-800 mb-1"><i class="fas fa-tag mr-2"></i>Pattern: Price Before Qualification Data (Red Flag)</p>
                         <p class="font-mono text-sm bg-white p-3 rounded">
                             **"${getRecommendation('price_first')}"**
                         </p>
                     </div>
                     
-                    <!-- Recommendation 3: Nurturing/Process Reminder -->
-                    <div class="p-4 report-recommendation-box rounded-lg shadow" style="background-color: #f0fdf4; border-left-color: #16a34a;">
+                    <!-- Recommendation 3: Nurturing/Process Reminder --><div class="p-4 report-recommendation-box rounded-lg shadow" style="background-color: #f0fdf4; border-left-color: #16a34a;">
                         <p class="font-bold text-green-800 mb-1"><i class="fas fa-clock mr-2"></i>Pattern: Long Response Gaps / Low Commitment</p>
                         <p class="font-mono text-sm bg-white p-3 rounded">
                             **"${getRecommendation('low_commitment')}"**
@@ -1156,16 +1165,16 @@
         window.handleLeadAnalysis = async () => {
             const transcript = document.getElementById('main-transcript-input').value.trim();
             const analyzeButton = document.getElementById('main-analyze-button');
+            const analyzeButtonIcon = document.getElementById('analyze-button-icon'); // Get the SVG element
             const reportContentDisplay = document.getElementById('report-content-display');
 
             if (!transcript) {
-                // Use console error/custom message instead of alert
                 console.error('Please paste or upload a conversation transcript.');
+                // Optional: Provide UI feedback here if desired
                 return;
             }
 
             if (!window.appState.geminiApiKey) {
-                // Use console error/custom message instead of alert
                 console.error('Please set your Google Gemini API Key in the Settings modal before analyzing leads.');
                 document.getElementById('settings-modal-wrapper').classList.remove('hidden');
                 return;
@@ -1173,7 +1182,9 @@
 
             // Show loading state
             analyzeButton.disabled = true;
-            analyzeButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            analyzeButtonIcon.src = ''; // Clear SVG src
+            analyzeButton.innerHTML = `<i class="fas fa-spinner fa-spin text-xl text-white"></i>`; // Temporary FA spinner
+
             reportContentDisplay.innerHTML = `<div class="text-center p-10 text-xl" style="color: var(--skin-color)">AI is generating qualification report...</div>`;
             
             // Ensure view switches to report view
@@ -1301,7 +1312,8 @@
                 reportContentDisplay.innerHTML = `<div class="p-10 text-red-500">An error occurred during analysis. Ensure your API Key is valid and the transcript is clear. Details: ${error.message}</div>`;
             } finally {
                 analyzeButton.disabled = false;
-                analyzeButton.innerHTML = '<i class="fas fa-arrow-up"></i>';
+                // Re-inject the image after loading is complete
+                analyzeButton.innerHTML = `<img id="analyze-button-icon" src="https://bucket.mlcdn.com/a/3336/3336910/images/900217d3be86945033e1ab943412dd93825c9b0c.png" alt="Analyze" class="w-10 h-10">`;
                 window.updateSaveButtonVisibility(); // Show save button if new report exists
             }
         };
@@ -1326,7 +1338,7 @@
         window.downloadReportAsPDF = () => {
             const reportElement = document.getElementById('report-content-display');
             if (!reportElement || !window.appState.currentConversation?.report) {
-                // Use console error/custom message instead of alert
+                // FIX: Replaced alert() with console.error()
                 console.error('No report has been generated yet.');
                 return;
             }
@@ -1408,51 +1420,39 @@
     </script>
 
 
-    <!-- Loading State -->
-    <div id="loading-state" class="fixed inset-0 flex items-center justify-center z-50" style="background-color: var(--body-color)">
+    <!-- Loading State --><div id="loading-state" class="fixed inset-0 flex items-center justify-center z-50" style="background-color: var(--body-color)">
         <div class="p-6 rounded-xl shadow-2xl text-center" style="background-color: var(--box-color)">
             <i class="fas fa-compass fa-spin text-4xl" style="color: var(--skin-color)"></i>
             <p class="text-lg font-semibold" style="color: var(--text-color); margin-top: 0.75rem;">Initializing Lead Qualifier...</p>
         </div>
     </div>
 
-    <!-- Main Application Container -->
-    <div class="flex h-screen w-full">
+    <!-- Main Application Container --><div class="flex h-screen w-full">
 
-        <!-- Sidebar (Left) -->
-        <aside id="sidebar" class="sidebar bg-body-color border-r border-mirage-color transition-colors duration-300 flex flex-col">
+        <!-- Sidebar (Left) --><aside id="sidebar" class="sidebar bg-body-color border-r border-mirage-color transition-colors duration-300 flex flex-col">
             <div class="sidebar-content h-full">
-                <!-- Sidebar Header & Logo/Icon -->
-                <div class="py-4 border-b px-4 flex flex-col flex-shrink-0 relative" style="border-color: var(--mirage-color)">
+                <!-- Sidebar Header & Logo/Icon --><div class="py-4 border-b px-4 flex flex-col flex-shrink-0 relative" style="border-color: var(--mirage-color)">
                     
-                    <!-- Close Button (Absolute position: 10px from top and right) -->
-                    <button id="sidebar-close-btn" class="p-1 rounded-full text-skin-color hover:opacity-80 transition hidden absolute top-[10px] right-[10px] z-10" onclick="window.toggleSidebar()" title="Close Sidebar">
+                    <!-- Close Button (Absolute position: 10px from top and right) --><button id="sidebar-close-btn" class="p-1 rounded-full text-skin-color hover:opacity-80 transition hidden absolute top-[10px] right-[10px] z-10" onclick="window.toggleSidebar()" title="Close Sidebar">
                         <i class="fas fa-times text-lg"></i>
                     </button>
                     
-                    <!-- Full Logo (Open State) -->
-                    <!-- UPDATED LOGO HERE -->
-                    <img id="sidebar-full-logo" src="https://ik.imagekit.io/bebell/LeadLens/logo-horizontal-leadlens.png?updatedAt=1763522577486" alt="Brand Logo" class="w-full h-auto mt-4" style="border-radius: 4px;">
-                    <!-- Icon Logo (Closed State) -->
-                    <img id="sidebar-icon-logo" src="https://ik.imagekit.io/bebell/LeadLens/icon%20for%20LeadLens.png" alt="Brand Icon" class="w-8 h-8 object-cover hidden">
+                    <!-- Full Logo (Open State) --><img id="sidebar-full-logo" src="https://ik.imagekit.io/bebell/LeadLens/logo-horizontal-leadlens.png?updatedAt=1763522577486" alt="Brand Logo" class="w-full h-auto mt-4" style="border-radius: 4px;">
+                    <!-- Icon Logo (Closed State) --><img id="sidebar-icon-logo" src="https://ik.imagekit.io/bebell/LeadLens/icon%20for%20LeadLens.png" alt="Brand Icon" class="w-8 h-8 object-cover hidden">
                 </div>
 
-                <!-- New Chat Button -->
-                <div class="my-4 px-4 flex-shrink-0">
+                <!-- New Chat Button --><div class="my-4 px-4 flex-shrink-0">
                     <button onclick="window.newConversation()" class="w-full bg-skin-color hover:opacity-90 text-title-color font-semibold py-2 rounded-lg transition duration-150 ease-in-out flex items-center justify-center">
                         <i class="fas fa-plus mr-2"></i> New Report
                     </button>
                 </div>
                 
-                <!-- Conversation History List -->
-                <div class="flex-1 overflow-y-auto px-4 pr-3">
+                <!-- Conversation History List --><div class="flex-1 overflow-y-auto px-4 pr-3">
                     <ul id="conversation-list" class="space-y-1">
-                        <!-- History items will be rendered here by JS -->
-                    </ul>
+                        <!-- History items will be rendered here by JS --></ul>
                 </div>
 
-                <!-- Sidebar Footer (Avatar, Username, Version) - Opens Settings Modal -->
-                <div class="mt-auto pt-4 border-t px-4 flex-shrink-0 cursor-pointer hover:bg-mirage-color/50 transition duration-150 rounded-t-lg" style="border-color: var(--mirage-color)" onclick="document.getElementById('settings-modal-wrapper').classList.remove('hidden')">
+                <!-- Sidebar Footer (Avatar, Username, Version) - Opens Settings Modal --><div class="mt-auto pt-4 border-t px-4 flex-shrink-0 cursor-pointer hover:bg-mirage-color/50 transition duration-150 rounded-t-lg sidebar-footer-border" style="border-color: var(--mirage-color)" onclick="document.getElementById('settings-modal-wrapper').classList.remove('hidden')">
                     <div class="flex items-center space-x-3 p-2 sidebar-footer-content">
                         <img id="sidebar-avatar-display" src="https://ik.imagekit.io/bebell/LeadLens/Picture%20Avatar%20(1).png" alt="User Profile" class="w-10 h-10 rounded-full object-cover ring-2 user-avatar-display" style="border-color: var(--skin-color)">
                         <div>
@@ -1464,84 +1464,76 @@
             </div>
         </aside>
         
-        <!-- Toggle Button for Collapsed Sidebar (Always positioned relative to the collapsed sidebar width) -->
-        <button id="sidebar-toggle-open" class="absolute top-4 left-0 z-50 p-3 rounded-full text-text-color hover:text-skin-color transition hidden" style="background-color: var(--box-color); margin-left: 10px;" onclick="window.toggleSidebar()" title="Open Sidebar">
+        <!-- Toggle Button for Collapsed Sidebar (Always positioned relative to the collapsed sidebar width) --><button id="sidebar-toggle-open" class="absolute top-4 left-0 z-50 p-3 rounded-full text-text-color hover:text-skin-color transition hidden" style="background-color: var(--box-color); margin-left: 10px;" onclick="window.toggleSidebar()" title="Open Sidebar">
             <i class="fas fa-bars"></i>
         </button>
 
-        <!-- Main Content Area (Right) -->
-        <main id="main-content-wrapper" class="main-content-wrapper flex flex-col flex-1 overflow-x-hidden relative" style="background-color: var(--body-color)">
+        <!-- Main Content Area (Right) --><main id="main-content-wrapper" class="main-content-wrapper flex flex-col flex-1 overflow-x-hidden relative" style="background-color: var(--body-color)">
             
-            <!-- Fixed Top Right Controls (PDF & Save) -->
-            <div class="fixed-top-right flex space-x-3 items-center hide-for-pdf">
-                 <button id="save-report-button" onclick="window.saveCurrentReport()" class="bg-green-600 hover:bg-green-700 text-title-color font-semibold py-2 px-3 rounded-lg shadow-md transition text-sm hidden">
+            <!-- Fixed Top Right Controls (PDF & Save) --><div class="fixed-top-right flex space-x-3 items-center hide-for-pdf">
+                <button id="save-report-button" onclick="window.saveCurrentReport()" class="bg-green-600 hover:bg-green-700 text-title-color font-semibold py-2 px-3 rounded-lg shadow-md transition text-sm hidden">
                     <i class="fas fa-save mr-1"></i> Save Report
                 </button>
-                <!-- NEW PDF BUTTON STYLING -->
-                 <button onclick="window.downloadReportAsPDF()" class="pdf-button-style font-semibold w-10 h-10 rounded-full shadow-md transition duration-200 ease-in-out flex items-center justify-center group" title="Download PDF">
+                <!-- NEW PDF BUTTON STYLING --><button onclick="window.downloadReportAsPDF()" class="pdf-button-style font-semibold w-10 h-10 rounded-full shadow-md transition duration-200 ease-in-out flex items-center justify-center group" title="Download PDF">
                     <i class="fas fa-file-pdf text-lg text-white group-hover:text-skin-color"></i>
                 </button>
             </div>
 
-            <!-- 1. Welcome View (Centered Content) -->
-            <div id="welcome-view" class="w-full flex-col p-4">
+            <!-- 1. Welcome View (Centered Content) --><div id="welcome-view" class="w-full flex-col p-4">
                 <div class="max-w-xl mx-auto flex flex-col items-center w-full">
-                    <!-- Profile Avatar (New Icon) - No border/ring -->
-                    <div class="mb-4">
-                        <!-- ICON SIZE INCREASED HERE (w-28 h-28) -->
-                        <img src="https://ik.imagekit.io/bebell/LeadLens/icon%20for%20LeadLens.png" alt="AI Avatar" class="w-28 h-28 rounded-full">
+                    <!-- Profile Avatar (New Icon) - No border/ring --><div class="mb-4">
+                        <img id="centerpiece-icon"
+                            src="https://ik.imagekit.io/bebell/LeadLens/icon%20for%20LeadLens.png"
+                            alt="AI Avatar"
+                            class="w-28 h-28" 
+                            onmouseover="this.src='https://bucket.mlcdn.com/a/3336/3336910/images/c6a34c2b6c9e37939e4f54113275a717f71b66aa.png';"
+                            onmouseout="this.src='https://ik.imagekit.io/bebell/LeadLens/icon%20for%20LeadLens.png';"
+                        >
                     </div>
-                    <!-- Greeting (Bolder, fixed text) -->
-                    <h2 id="welcome-greeting" class="text-title-color text-center" style="font-size: 2.5rem; font-weight: 800; letter-spacing: -0.05em; line-height: 1.1;">Who should we qualify today?</h2>
+                    <!-- Greeting (Bolder, fixed text) --><h2 id="welcome-greeting" class="text-title-color text-center" style="font-size: 2.5rem; font-weight: 800; letter-spacing: -0.05em; line-height: 1.1;">Who should we qualify today?</h2>
                     
                     <!-- Instructions Beneath Greeting -->
-                    <p class="text-text-color mt-3 text-sm text-center max-w-sm">
+                    <!-- MODIFIED: Inline style applied to set the color to #525252 -->
+                    <p class="text-text-color mt-3 text-sm text-center max-w-sm" style="color: #525252 !important;">
                         Paste or upload a chat transcript. Use "Speaker1: text" format for best results.
                     </p>
                 
-                    <!-- Single Input Container (Centered beneath greeting) -->
-                    <div id="main-input-container" class="w-full relative">
+                    <!-- Single Input Container (Centered beneath greeting) --><div id="main-input-container" class="w-full relative">
                         <div class="minimal-input-wrapper mx-auto max-w-2xl">
-                            <!-- File Upload Option (Icon) -->
-                            <label class="cursor-pointer text-text-color hover:text-skin-color transition pr-3 flex items-center" title="Upload Transcript">
-                                <i class="fas fa-upload text-lg"></i>
+                            <!-- File Upload Option (Icon) - CLOUD-ARROW-UP -->
+                            <!-- FIX: Changed class to mr-2 for symmetrical spacing with ml-2 on the Analyze button -->
+                            <label class="cursor-pointer text-text-color hover:text-skin-color transition mr-2 flex items-center" title="Upload Transcript">
+                                <i class="fas fa-cloud-arrow-up text-lg"></i>
                                 <input type="file" id="transcript-file-upload-main" onchange="window.handleFileUpload(event);" class="hidden" accept=".txt,.log,.md">
                             </label>
 
-                            <!-- Textarea (Sleek Input) -->
-                            <textarea id="main-transcript-input" rows="1" class="minimal-input" placeholder="Start typing or paste transcript..."></textarea>
+                            <!-- Textarea (Sleek Input) --><textarea id="main-transcript-input" rows="1" class="minimal-input" placeholder="Upload or paste transcript here..."></textarea>
 
-                            <!-- Analyze Button (Send Icon) -->
-                            <button id="main-analyze-button" onclick="window.handleLeadAnalysis()" class="bg-skin-color hover:opacity-90 text-title-color font-bold p-3 ml-2 rounded-full transition duration-150 ease-in-out">
-                                <i class="fas fa-arrow-up"></i>
+                            <!-- Analyze Button (Run Icon) - Custom PNG, twice the size (w-10 h-10) --><button id="main-analyze-button" onclick="window.handleLeadAnalysis()" class="bg-skin-color hover:opacity-90 text-title-color font-bold p-3 ml-2 rounded-full transition duration-150 ease-in-out flex items-center justify-center">
+                                <img id="analyze-button-icon" src="https://bucket.mlcdn.com/a/3336/3336910/images/900217d3be86945033e1ab943412dd93825c9b0c.png" alt="Analyze" class="w-10 h-10">
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. Report View (Scrollable Content) -->
-            <div id="report-view" class="hidden relative p-4 sm:p-8">
+            <!-- 2. Report View (Scrollable Content) --><div id="report-view" class="hidden relative p-4 sm:p-8">
                 <div id="report-content-display" class="w-full h-full flex justify-center items-start">
-                    <!-- Report content will be injected here by JS, styled as the case study -->
-                </div>
-                 <!-- Back to Top Button -->
-                <button id="back-to-top" class="hidden fixed bottom-24 right-8 text-title-color p-3 rounded-full shadow-lg transition duration-300" style="background-color: var(--skin-color)" title="Go to top">
-                    <i class="fas fa-arrow-up"></i>
-                </button>
+                    <!-- Report content will be injected here by JS, styled as the case study --></div>
+                    <!-- Back to Top Button --><button id="back-to-top" class="hidden fixed bottom-24 right-8 text-title-color p-3 rounded-full shadow-lg transition duration-300" style="background-color: var(--skin-color)" title="Go to top">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
             </div>
 
         </main>
     </div>
     
-    <!-- Settings Modal (Hidden by default) -->
-    <div id="settings-modal-wrapper" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden" onclick="if(event.target.id === 'settings-modal-wrapper') document.getElementById('settings-modal-wrapper').classList.add('hidden')">
+    <!-- Settings Modal (Hidden by default) --><div id="settings-modal-wrapper" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden" onclick="if(event.target.id === 'settings-modal-wrapper') document.getElementById('settings-modal-wrapper').classList.add('hidden')">
         <div id="settings-modal" class="rounded-xl shadow-2xl p-6 sm:p-8 w-11/12 max-w-lg transition-all duration-300 transform scale-100 border" style="background-color: var(--box-color); border-color: var(--mirage-color)" onclick="event.stopPropagation()">
             <h3 class="text-2xl font-bold mb-6 border-b pb-2 text-title-color" style="border-color: var(--mirage-color)">User Settings & API Access</h3>
 
             <div class="space-y-5">
-                <!-- Profile Section -->
-                <div class="flex flex-col space-y-4 pb-4 border-b" style="border-color: var(--mirage-color)">
+                <!-- Profile Section --><div class="flex flex-col space-y-4 pb-4 border-b" style="border-color: var(--mirage-color)">
                     <div class="flex items-center space-x-4">
                         <img id="modal-avatar-display" src="https://ik.imagekit.io/bebell/LeadLens/Picture%20Avatar%20(1).png" alt="User Profile" class="w-16 h-16 rounded-full object-cover ring-2 user-avatar-display" style="border-color: var(--skin-color)">
                         <div class="flex-1">
@@ -1550,32 +1542,29 @@
                         </div>
                     </div>
                     
-                    <!-- Avatar Upload -->
-                    <div>
-                         <label class="block text-sm font-medium text-text-color mb-1">Profile Picture (Max 500KB)</label>
-                         <input type="file" id="profile-picture-upload" onchange="window.handleProfilePictureUpload(event)" accept="image/png, image/jpeg, image/gif" class="block w-full text-sm text-text-color
-                             file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold
-                             file:bg-skin-color file:text-white hover:file:bg-mirage-color hover:file:text-title-color"
-                         />
-                         <p id="upload-status" class="mt-2 text-xs text-green-500"></p>
+                    <!-- Avatar Upload --><div>
+                        <label class="block text-sm font-medium text-text-color mb-1">Profile Picture (Max 500KB)</label>
+                        <!-- FIX: Added file:text-black for contrast -->
+                        <input type="file" id="profile-picture-upload" onchange="window.handleProfilePictureUpload(event)" accept="image/png, image/jpeg, image/gif" class="block w-full text-sm text-text-color
+                            file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold
+                            file:bg-skin-color file:text-black hover:file:bg-mirage-color hover:file:text-title-color"
+                        />
+                        <p id="upload-status" class="mt-2 text-xs text-green-500"></p>
                     </div>
                 </div>
 
-                <!-- API Key Section (BYOK) -->
-                <div>
+                <!-- API Key Section (BYOK) --><div>
                     <label for="api-key-input" class="block text-sm font-medium text-text-color mb-2">Gemini API Key (BYOK)</label>
                     <input type="password" id="api-key-input" placeholder="Enter your Google Gemini API Key" class="mt-1 block w-full p-2 border border-red-700 rounded-md shadow-sm focus:ring-skin-color focus:border-skin-color text-title-color" style="background-color: var(--mirage-color)">
                     <p class="mt-2 text-xs text-red-400">Required for AI analysis. Your key is saved securely using **Browser Storage** (and Firestore if available).</p>
                 </div>
 
-                <!-- Privacy Notice (New) -->
-                <div class="bg-yellow-900/20 p-3 rounded-md border border-yellow-700/50">
+                <!-- Privacy Notice (New) --><div class="bg-yellow-900/20 p-3 rounded-md border border-yellow-700/50">
                     <p class="text-xs text-yellow-500 font-semibold mb-1"><i class="fas fa-shield-alt mr-1"></i> Data Privacy Notice</p>
                     <p class="text-xs text-gray-400">Transcripts are processed by Google Gemini AI. Do not upload transcripts containing sensitive PII (Personally Identifiable Information) such as credit card numbers or medical data.</p>
                 </div>
 
-                <!-- Subscription Settings (Placeholder) -->
-                <div>
+                <!-- Subscription Settings (Placeholder) --><div>
                     <label class="block text-sm font-medium text-text-color">Subscription Settings</label>
                     <p class="mt-1 text-sm text-text-color">Current Plan: Pro Analyst (Mock)</p>
                     <details class="mt-2 p-2 border rounded-md" style="border-color: var(--mirage-color)">
@@ -1585,20 +1574,17 @@
                     </details>
                 </div>
                 
-                <!-- Data Import/Export (New Section) -->
-                <details class="pt-4 border-t" style="border-color: var(--mirage-color)">
+                <!-- Data Import/Export (New Section) --><details class="pt-4 border-t" style="border-color: var(--mirage-color)">
                     <summary class="font-medium cursor-pointer text-title-color text-sm">
                         <i class="fas fa-file-export mr-2 text-blue-500"></i> Import & Export Data
                     </summary>
                     <div class="mt-4 space-y-3">
-                        <!-- Export Button -->
-                        <button onclick="window.exportConversationHistory()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition">
+                        <!-- Export Button --><button onclick="window.exportConversationHistory()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition">
                             <i class="fas fa-download mr-2"></i> EXPORT ALL DATA (.json)
                         </button>
                         <p id="export-status" class="mt-2 text-center text-sm text-green-500"></p>
 
-                        <!-- Import File Input -->
-                        <div>
+                        <!-- Import File Input --><div>
                             <label for="import-file-input" class="block text-xs font-medium text-text-color mb-1">Restore from File (.json or .txt)</label>
                             <input type="file" id="import-file-input" onchange="window.handleImport(event)" accept=".json,.txt,.log,.md" class="block w-full text-sm text-text-color
                                 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold
@@ -1609,8 +1595,7 @@
                     </div>
                 </details>
 
-                <!-- Data Management (Wrapped in Details for Safety) -->
-                <details class="pt-4 border-t" style="border-color: var(--mirage-color)">
+                <!-- Data Management (Wrapped in Details for Safety) --><details class="pt-4 border-t" style="border-color: var(--mirage-color)">
                     <summary class="font-medium cursor-pointer text-title-color text-sm">
                         <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i> Advanced Data Management
                     </summary>
@@ -1624,8 +1609,7 @@
 
             </div>
 
-            <!-- Action Buttons -->
-            <div class="mt-6 flex justify-end space-x-3">
+            <!-- Action Buttons --><div class="mt-6 flex justify-end space-x-3">
                 <button onclick="window.saveUserSettings()" class="bg-skin-color hover:opacity-90 text-title-color font-semibold py-2 px-4 rounded-lg transition">Save Settings</button>
                 <button onclick="document.getElementById('settings-modal-wrapper').classList.add('hidden')" class="bg-mirage-color hover:bg-mirage-color/70 text-title-color font-semibold py-2 px-4 rounded-lg transition">Close</button>
             </div>
