@@ -9,6 +9,14 @@
     <!-- Load required libraries for PDF generation (html2canvas, jsPDF) --><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+
+    
+    <!-- Favicon -->
+<link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/71dbdd24ad8ebf75d9a1a1400bfdede02f9e9b44.png">
+
+
+    
+
     <!-- Use Inter font --><style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
@@ -1302,17 +1310,59 @@
                 if (i < 2) await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
             }
 
-            try {
-                if (!response || !response.ok) {
-                    throw new Error(`API call failed with status: ${response ? response.status : 'Network Error'}`);
-                }
+try {
+    if (!response || !response.ok) {
+        const errorText = await response?.text();
+        console.error("API Error Response:", errorText);
+        throw new Error(`API call failed with status: ${response ? response.status : 'Network Error'}`);
+    }
 
-                const result = await response.json();
-                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+    const result = await response.json();
+    console.log("Full API Response:", result);
 
-                if (!jsonText) throw new Error("Received empty or malformed response from AI.");
+    // Try multiple possible response paths
+    const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text || 
+                     result.text ||
+                     (result.candidates && result.candidates[0] && result.candidates[0].content && 
+                      result.candidates[0].content.parts && result.candidates[0].content.parts[0] && 
+                      result.candidates[0].content.parts[0].text);
 
-                const report = JSON.parse(jsonText);
+    if (!jsonText) {
+        console.error("No JSON text found. Available keys:", Object.keys(result));
+        if (result.candidates && result.candidates[0]) {
+            console.error("Candidate structure:", result.candidates[0]);
+        }
+        throw new Error("Could not extract JSON from AI response");
+    }
+
+    const report = JSON.parse(jsonText);
+
+
+    
+// Try different possible response structures
+const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text || 
+                 result.candidates?.[0]?.content?.parts?.[0]?.text || 
+                 result.text;
+
+if (!jsonText) {
+    console.error("No JSON text found in response. Full response:", result);
+    throw new Error("Received empty or malformed response from AI.");
+}
+
+
+
+    
+
+} catch (error) {
+    console.error("Error processing AI response:", error);
+    reportContentDisplay.innerHTML = `
+        <div class="p-10 text-red-500 text-center">
+            <h3 class="text-xl font-bold mb-4">Analysis Failed</h3>
+            <p>Error: ${error.message}</p>
+            <p class="text-sm mt-4">Check the browser console for detailed error information.</p>
+        </div>
+    `;
+}                
 
                 // Start the score animation immediately
                 const qualificationScore = Math.round(report.overallScore * 20);
