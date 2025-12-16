@@ -31,7 +31,30 @@
             --dark-text: #e2e8f0;
         }
 
-
+        .custom-image-widget {
+            position: fixed !important;
+            top: 50px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            right: 0px;
+            z-index: 999;
+        }
+        
+        .custom-image {
+            width: 70px;
+            height: auto;
+            transition: transform 0.2s;
+        }
+        
+        .custom-image-widget:hover .custom-image {
+            transform: scale(1.2);
+        }
+        
+        .custom-image-widget:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+                
         body {
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
@@ -118,8 +141,8 @@
 
         /* Pomodoro Styles */
         @keyframes pulse-red {
-            0%, 100% { background-color: var(--primary); }
-            50% { background-color: #ef4444; box-shadow: 0 0 15px #ef4444; }
+            0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: transparent; }
+            50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); border-color: #ef4444; }
         }
         
         .pomodoro-warning {
@@ -208,10 +231,55 @@
         html.dark .kanban-col.drag-over {
              background-color: rgba(255, 255, 255, 0.05);
         }
+
+        /* Flip Clock Styles */
+        .flip-clock-digit {
+            background-color: var(--primary);
+            color: white;
+            font-family: monospace;
+            border-radius: 4px;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.4rem;
+            height: 2.2rem;
+            line-height: 2.2rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            perspective: 400px;
+        }
+        .flip-clock-digit::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(0,0,0,0.3);
+            box-shadow: 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .animate-flip {
+            animation: flipKey 0.6s ease-in-out;
+        }
+        @keyframes flipKey {
+            0% { transform: rotateX(0deg); }
+            50% { transform: rotateX(90deg); opacity: 0.7; }
+            100% { transform: rotateX(0deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-dark-bg flex h-screen">
 
+     <div class="custom-image-widget" style="position: relative; display: inline-block;">
+    <a href="https://bebell-digital-solutions.github.io/headquarters/english-v03">
+        <img class="custom-image" 
+             src="https://bucket.mlcdn.com/a/3336/3336910/images/2891bb0a192c808fe1bb53e3905fc787957c2085.png" 
+             alt="English Translation"
+             style="display: block;">
+    </a>
+</div>
 
     <!-- Sidebar -->
     <div class="sidebar w-64 flex-shrink-0 flex flex-col p-6">
@@ -264,9 +332,15 @@
                 
                 <div class="flex flex-col items-end md:items-center">
                     <span class="text-[10px] uppercase tracking-widest font-light mb-1 text-gray-500 dark:text-gray-400">Pomodoro</span>
-                    <div id="pomodoro-widget" class="flex items-center gap-4 px-6 py-2 rounded-full shadow-lg transition-all transform hover:scale-105" style="background-color: var(--primary); color: white;">
-                        <span id="pomodoro-display" class="font-mono text-2xl font-bold tracking-widest min-w-[80px] text-center">25:00</span>
-                        <button id="pomodoro-btn" class="p-1.5 hover:bg-white/20 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/50" title="Iniciar/Pausar">
+                    <div id="pomodoro-widget" class="card flex items-center gap-4 px-6 py-3 transition-all transform hover:scale-105 border-2 border-transparent">
+                        <div id="pomodoro-display" class="flex items-center gap-1">
+                            <div id="digit-m1" class="flip-clock-digit">2</div>
+                            <div id="digit-m2" class="flip-clock-digit">5</div>
+                            <div class="font-bold text-gray-400 dark:text-gray-500 px-0.5">:</div>
+                            <div id="digit-s1" class="flip-clock-digit">0</div>
+                            <div id="digit-s2" class="flip-clock-digit">0</div>
+                        </div>
+                        <button id="pomodoro-btn" class="p-1.5 text-primary hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50" title="Iniciar/Pausar">
                             <i data-lucide="play" class="w-5 h-5 fill-current"></i>
                         </button>
                     </div>
@@ -476,12 +550,10 @@
                 isRunning: false,
                 interval: null,
                 widget: null,
-                display: null,
                 btn: null,
 
                 init() {
                     this.widget = document.getElementById('pomodoro-widget');
-                    this.display = document.getElementById('pomodoro-display');
                     this.btn = document.getElementById('pomodoro-btn');
                     
                     if (this.btn) {
@@ -548,10 +620,24 @@
                      if(window.lucide) window.lucide.createIcons({ root: this.btn.parentNode });
                 },
 
+                updateDigit(id, val) {
+                    const el = document.getElementById(id);
+                    if (el && el.textContent !== val) {
+                        el.textContent = val;
+                        el.classList.remove('animate-flip');
+                        void el.offsetWidth; // trigger reflow
+                        el.classList.add('animate-flip');
+                    }
+                },
+
                 render() {
                     const m = Math.floor(this.timeLeft / 60).toString().padStart(2, '0');
                     const s = (this.timeLeft % 60).toString().padStart(2, '0');
-                    this.display.textContent = `${m}:${s}`;
+                    
+                    this.updateDigit('digit-m1', m[0]);
+                    this.updateDigit('digit-m2', m[1]);
+                    this.updateDigit('digit-s1', s[0]);
+                    this.updateDigit('digit-s2', s[1]);
                 }
             };
 
