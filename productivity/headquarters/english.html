@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sede Central</title>
+    <title>Headquarters</title>
 
-    <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/ad4c22e5b232bd1ab5a5e62d15be9ad96e354811.png">
+     <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/ad4c22e5b232bd1ab5a5e62d15be9ad96e354811.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script> 
@@ -28,6 +28,7 @@
         }
 
 
+                
         body {
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
@@ -175,7 +176,7 @@
             opacity: 1;
             transform: translateY(0);
         }
-        
+
         .section-footer {
             margin-top: 40px;
             padding-top: 20px;
@@ -245,54 +246,41 @@
 </head>
 <body class="bg-gray-100 dark:bg-dark-bg flex h-screen">
 
-    <!-- Custom Image Widget from original code -->
-    <a href="https://api.helpdesk.icu/widget/6cb4c417-1da5-31ec-ae0d-b1f79dad581f" class="custom-image-widget" target="_blank" rel="noopener noreferrer">
-        <img class="custom-image" src="https://bucket.mlcdn.com/a/3336/3336910/images/6794eefa1bcbd44c0a755ed64a2b841a564face8.png" alt="Helpdesk Icon" onerror="this.onerror=null;this.src='https://placehold.co/70x70/df1783/ffffff?text=H'">
-    </a>
-    <script>(function(d, s, id){
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
-        js.src = 'https://api.helpdesk.icu/widget/6cb4c417-1da5-31ec-ae0d-b1f79dad581f?r=' + encodeURIComponent(window.location);
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'contactus-jssdk'));</script>
-
+ 
 
     <div class="sidebar w-64 flex-shrink-0 flex flex-col p-6">
         <div class="mb-10">
             <div class="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center mb-4">
                 <i data-lucide="zap" class="w-8 h-8 text-white"></i>
             </div>
-            <h1 class="text-3xl font-bold text-white mb-2">Sede Central</h1>
-            <!-- Initial Text in Spanish -->
-            <p class="text-white/80 text-sm leading-relaxed">Tu centro de mando de productividad.</p>
+            <h1 class="text-3xl font-bold text-white mb-2">Headquarters</h1>
+            <p class="text-white/80 text-sm leading-relaxed">Your productivity command center.</p>
         </div>
         
         <nav class="flex-grow space-y-2">
-            <!-- Navigation items with initial Spanish text (overwritten by JS render) -->
-            <div id="nav-dashboard" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer" data-view="dashboard"><i data-lucide="layout-dashboard"></i><span>Panel de Control</span></div>
-            <div id="nav-tasks" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer" data-view="tasks"><i data-lucide="check-square"></i><span>Tareas</span></div>
-            <div id="nav-projects" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer" data-view="projects"><i data-lucide="folder-kanban"></i><span>Proyectos</span></div>
-            <div id="nav-notes" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer" data-view="notes"><i data-lucide="notebook-pen"></i><span>Notas</span></div>
-            <div id="nav-calendar" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer" data-view="calendar"><i data-lucide="calendar-days"></i><span>Calendario</span></div>
+            <div id="nav-dashboard" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer" data-view="dashboard"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></div>
+            <div id="nav-tasks" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer" data-view="tasks"><i data-lucide="check-square"></i><span>Tasks</span></div>
+            <div id="nav-projects" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer" data-view="projects"><i data-lucide="folder-kanban"></i><span>Projects</span></div>
+            <div id="nav-notes" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer" data-view="notes"><i data-lucide="notebook-pen"></i><span>Notes</span></div>
+            <div id="nav-calendar" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer" data-view="calendar"><i data-lucide="calendar-days"></i><span>Calendar</span></div>
             
             <div class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer" 
                  data-view="iframe-view" 
                  data-iframe-url="https://bebell-digital-solutions.github.io/aiba-deepseek/es-v03" 
-                 data-iframe-title="Asistente IA">
-                <i data-lucide="bot"></i><span>Asistente IA</span>
+                 data-iframe-title="AI Assistant">
+                <i data-lucide="bot"></i><span>AI Assistant</span>
             </div>
         </nav>
 
         <div class="space-y-3 mt-auto">
-            <button id="settings-btn" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer hover:bg-accent text-left">
-                <i data-lucide="settings" class="w-5 h-5"></i><span>Configuración</span>
+             <button id="settings-btn" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer hover:bg-accent text-left">
+                <i data-lucide="settings" class="w-5 h-5"></i><span>Settings</span>
             </button>
             <button id="theme-toggle" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer hover:bg-accent text-left">
-                <i data-lucide="sun" class="w-5 h-5"></i><span>Modo Claro</span>
+                <i data-lucide="sun" class="w-5 h-5"></i><span>Light Mode</span>
             </button>
             <a href="https://www.notion.so/templates" target="_blank" class="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer hover:bg-accent">
-                <i data-lucide="download" class="w-5 h-5"></i><span>Plantillas Notion</span>
+                 <i data-lucide="download" class="w-5 h-5"></i><span>Notion Templates</span>
             </a>
         </div>
     </div>
@@ -302,8 +290,8 @@
         <section id="dashboard" class="section space-y-8">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 class="text-4xl font-bold">Panel de Control</h1>
-                    <p class="text-gray-500 dark:text-gray-400 mt-1">Aquí está tu resumen de productividad para hoy.</p>
+                    <h1 class="text-4xl font-bold">Dashboard</h1>
+                    <p class="text-gray-500 dark:text-gray-400 mt-1">Here is your productivity summary for today.</p>
                 </div>
                 
                 <div class="flex flex-col items-end md:items-center">
@@ -316,7 +304,7 @@
                             <div id="digit-s1" class="flip-clock-digit">0</div>
                             <div id="digit-s2" class="flip-clock-digit">0</div>
                         </div>
-                        <button id="pomodoro-btn" class="p-1.5 text-primary hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50" title="Iniciar/Pausar">
+                        <button id="pomodoro-btn" class="p-1.5 text-primary hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50" title="Start/Pause">
                             <i data-lucide="play" class="w-5 h-5 fill-current"></i>
                         </button>
                     </div>
@@ -325,49 +313,49 @@
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <button id="btn-add-task" class="btn btn-primary text-lg font-semibold p-6">
-                    <i data-lucide="plus-circle"></i> Nueva Tarea
+                    <i data-lucide="plus-circle"></i> Add New Task
                 </button>
                 <button id="btn-add-note" class="btn btn-primary text-lg font-semibold p-6">
-                    <i data-lucide="plus-circle"></i> Nota Rápida
+                    <i data-lucide="plus-circle"></i> Add Quick Note
                 </button>
                 <button id="btn-add-project" class="btn btn-primary text-lg font-semibold p-6">
-                    <i data-lucide="plus-circle"></i> Nuevo Proyecto
+                    <i data-lucide="plus-circle"></i> Add New Project
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="dashboard-stats">
-            </div>
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="dashboard-stats">
+                </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="card p-6 flex flex-col">
-                    <h2 class="text-xl font-bold mb-4 flex-shrink-0">Estado de Finalización</h2>
+                    <h2 class="text-xl font-bold mb-4 flex-shrink-0">Task Completion Status</h2>
                     <div class="relative flex-grow min-h-[250px]">
                         <canvas id="task-completion-chart"></canvas>
                     </div>
                 </div>
                 <div class="card p-6 flex flex-col">
-                    <h2 class="text-xl font-bold mb-4 flex-shrink-0">Fechas Límite de esta Semana</h2>
+                    <h2 class="text-xl font-bold mb-4 flex-shrink-0">This Week's Deadlines</h2>
                     <div id="weekly-deadlines" class="flex-grow overflow-y-auto max-h-[268px]">
                         </div>
                 </div>
             </div>
 
             <div class="card p-6">
-                <h2 class="text-xl font-bold mb-4">Resumen de Tareas</h2>
-                <div id="dashboard-tasks" class="text-gray-600 dark:text-gray-300">Cargando tareas...</div>
+                 <h2 class="text-xl font-bold mb-4">Task Overview</h2>
+                 <div id="dashboard-tasks" class="text-gray-600 dark:text-gray-300">Loading tasks...</div>
             </div>
 
             <div class="card p-6">
-                <h2 class="text-xl font-bold mb-4">Vista Previa del Calendario</h2>
-                <div id="dashboard-calendar-preview">Cargando calendario...</div>
+                <h2 class="text-xl font-bold mb-4">Calendar Preview</h2>
+                <div id="dashboard-calendar-preview">Loading calendar...</div>
             </div>
         </section>
 
         <section id="tasks" class="section hidden">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-4xl font-bold">Tareas</h1>
+                <h1 class="text-4xl font-bold">Tasks</h1>
                 <button id="add-task-from-view" class="btn btn-primary">
-                    <i data-lucide="plus"></i> Nueva Tarea
+                    <i data-lucide="plus"></i> Add New Task
                 </button>
             </div>
             <div id="tasks-filter-container" class="card p-4 mb-6"></div>
@@ -376,19 +364,19 @@
 
         <section id="projects" class="section hidden">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-4xl font-bold">Proyectos</h1>
-                <button id="add-project-from-view" class="btn btn-primary">
-                    <i data-lucide="plus"></i> Nuevo Proyecto
+                <h1 class="text-4xl font-bold">Projects</h1>
+                 <button id="add-project-from-view" class="btn btn-primary">
+                    <i data-lucide="plus"></i> Add New Project
                 </button>
             </div>
             <div id="projects-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
         <section id="notes" class="section hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-4xl font-bold">Notas</h1>
-                <button id="add-note-from-view" class="btn btn-primary">
-                    <i data-lucide="plus"></i> Nota Rápida
+             <div class="flex justify-between items-center mb-6">
+                <h1 class="text-4xl font-bold">Notes</h1>
+                 <button id="add-note-from-view" class="btn btn-primary">
+                    <i data-lucide="plus"></i> Add New Note
                 </button>
             </div>
             <div id="notes-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -396,25 +384,25 @@
 
         <section id="calendar" class="section hidden space-y-6">
             <div class="flex flex-wrap justify-between items-center gap-4">
-                <h1 class="text-4xl font-bold">Calendario</h1>
+                <h1 class="text-4xl font-bold">Calendar</h1>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-2">
-                        <button id="sync-google-btn" class="btn bg-blue-500 hover:bg-blue-600 text-white text-sm py-2">
-                            <i data-lucide="calendar-plus"></i> Sincronizar con Google
+                         <button id="sync-google-btn" class="btn bg-blue-500 hover:bg-blue-600 text-white text-sm py-2">
+                             <i data-lucide="calendar-plus"></i> Sync with Google
                         </button>
                         <button id="download-ics-btn" class="btn bg-green-500 hover:bg-green-600 text-white text-sm py-2">
-                           <i data-lucide="download-cloud"></i> Descargar .ICS
+                           <i data-lucide="download-cloud"></i> Download .ICS
                         </button>
                     </div>
                     <div class="flex items-center border rounded-lg p-1 bg-gray-200 dark:bg-gray-700">
-                        <button id="calendar-view-month" class="px-3 py-1 text-sm rounded-md">Mes</button>
-                        <button id="calendar-view-week" class="px-3 py-1 text-sm rounded-md">Semana</button>
+                        <button id="calendar-view-month" class="px-3 py-1 text-sm rounded-md">Month</button>
+                        <button id="calendar-view-week" class="px-3 py-1 text-sm rounded-md">Week</button>
                     </div>
                 </div>
             </div>
             
             <div class="card p-6">
-                <h2 class="text-2xl font-bold mb-4">Tareas de Hoy</h2>
+                <h2 class="text-2xl font-bold mb-4">Today's Tasks</h2>
                 <div id="calendar-today-tasks"></div>
             </div>
 
@@ -440,35 +428,35 @@
                 <h1 class="text-4xl font-bold truncate pr-4">Kanban: <span id="kanban-project-title"></span></h1>
                 <button id="back-to-projects-btn" class="btn bg-gray-200 dark:bg-gray-600 dark:text-white">
                     <i data-lucide="arrow-left"></i>
-                    <span class="hidden sm:inline">Volver a Proyectos</span>
+                    <span class="hidden sm:inline">Back to Projects</span>
                 </button>
             </div>
             <div id="kanban-board" class="flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 overflow-x-auto">
                 <div class="kanban-col bg-gray-200/50 dark:bg-dark-bg/50 p-4 rounded-lg flex flex-col">
-                    <h2 class="font-bold text-lg mb-4 pb-2 border-b-2 border-red-500 flex-shrink-0">Pendiente</h2>
+                    <h2 class="font-bold text-lg mb-4 pb-2 border-b-2 border-red-500 flex-shrink-0">Pending</h2>
                     <div id="kanban-pending" class="kanban-tasks-container space-y-4 min-h-[200px] flex-grow overflow-y-auto"></div>
                 </div>
                 <div class="kanban-col bg-gray-200/50 dark:bg-dark-bg/50 p-4 rounded-lg flex flex-col">
-                    <h2 class="font-bold text-lg mb-4 pb-2 border-b-2 border-yellow-500 flex-shrink-0">En Progreso</h2>
+                    <h2 class="font-bold text-lg mb-4 pb-2 border-b-2 border-yellow-500 flex-shrink-0">In Progress</h2>
                     <div id="kanban-progress" class="kanban-tasks-container space-y-4 min-h-[200px] flex-grow overflow-y-auto"></div>
                 </div>
                 <div class="kanban-col bg-gray-200/50 dark:bg-dark-bg/50 p-4 rounded-lg flex flex-col">
-                    <h2 class="font-bold text-lg mb-4 pb-2 border-b-2 border-green-500 flex-shrink-0">Hecho</h2>
+                    <h2 class="font-bold text-lg mb-4 pb-2 border-b-2 border-green-500 flex-shrink-0">Done</h2>
                     <div id="kanban-done" class="kanban-tasks-container space-y-4 min-h-[200px] flex-grow overflow-y-auto"></div>
                 </div>
             </div>
         </section>
 
         <footer class="section-footer">
-            <p>Desarrollado con 💖 por <a href="https://bebelldigitalsolutions.com" target="_blank" rel="noopener noreferrer" class="hover:underline"><strong style="color:var(--primary);">Bebell Digital Solutions</strong></a></p>
-            <p>Copyright © 2025 • Todos los derechos reservados</p>
+            <p>Developed with 💖 by <a href="https://bebelldigitalsolutions.com" target="_blank" rel="noopener noreferrer" class="hover:underline"><strong style="color:var(--primary);">Bebell Digital Solutions</strong></a></p>
+            <p>Copyright © 2025 • All rights reserved</p>
         </footer>
     </main>
 
     <div id="modal-container" class="fixed inset-0 z-50 bg-black/60 hidden items-center justify-center p-4 opacity-0">
         <div id="modal-content" class="card w-full max-w-2xl transform -translate-y-10">
             <div class="flex justify-between items-center p-4 border-b dark:border-gray-600">
-                <h2 id="modal-title" class="text-2xl font-bold">Título del Modal</h2>
+                <h2 id="modal-title" class="text-2xl font-bold">Modal Title</h2>
                 <button id="modal-close" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"><i data-lucide="x"></i></button>
             </div>
             <div id="modal-body" class="p-6 max-h-[70vh] overflow-y-auto">
@@ -477,8 +465,17 @@
     </div>
 
     <div class="save-notification" id="saveNotification">
-        Datos guardados con éxito!
+        Data saved successfully!
     </div>
+
+
+<script>(function(d, s, id){
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://api.helpdesk.icu/widget/6cb4c417-1da5-31ec-ae0d-b1f79dad581f?r=' + encodeURIComponent(window.location);
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'contactus-jssdk'));</script>
 
     
     
@@ -499,7 +496,7 @@
                 activeTagFilter: null,
                 primaryColor: '#df1783',
                 secondaryColor: '#8c318f',
-                language: 'es' // !!! CHANGED DEFAULT TO SPANISH !!!
+                language: 'en'
             };
             let taskCompletionChart = null;
 
@@ -689,8 +686,8 @@
 
             // Helper function to get text
             function t(key) {
-                const lang = state.language || 'es'; // Default to 'es'
-                return translations[lang][key] || translations['en'][key] || key; // Fallback to EN, then key
+                const lang = state.language || 'en';
+                return translations[lang][key] || key; // Fallback to key if missing
             }
 
             // --- POMODORO LOGIC ---
@@ -790,7 +787,7 @@
                 }
             };
 
-            // --- DATABASE SERVICE (IndexedDB) ---
+            // --- DATABASE SERVICE ---
             const dbService = {
                 db: null,
                 init() {
@@ -898,7 +895,7 @@
                 if($('#nav-notes span')) $('#nav-notes span').textContent = t('notes');
                 if($('#nav-calendar span')) $('#nav-calendar span').textContent = t('calendar');
                 
-                $$('.sidebar h1').forEach(el => el.textContent = "Sede Central"); 
+                $$('.sidebar h1').forEach(el => el.textContent = "Headquarters"); 
                 $$('.sidebar p').forEach(el => el.textContent = t('tagline'));
                 
                 const aiNav = document.querySelector('[data-iframe-title="AI Assistant"] span');
@@ -907,9 +904,6 @@
                 const settingsBtn = $('#settings-btn span');
                 if(settingsBtn) settingsBtn.textContent = t('settings');
 
-                const notionLink = document.querySelector('a[href="https://www.notion.so/templates"] span');
-                if(notionLink) notionLink.textContent = t('notion_templates');
-                
                 // Footer
                 const footerP = $('.section-footer p:first-child');
                 if(footerP) footerP.innerHTML = `${t('developed_by')} <a href="https://bebelldigitalsolutions.com" target="_blank" class="hover:underline"><strong style="color:var(--primary);">Bebell Digital Solutions</strong></a>`;
@@ -1028,10 +1022,10 @@
 
                 // Update Section Headers
                 $$('#dashboard h2').forEach(el => {
-                    if(el.textContent.includes('Status') || el.textContent.includes(t('task_completion'))) el.textContent = t('task_completion');
-                    if(el.textContent.includes('Deadlines') || el.textContent.includes(t('weekly_deadlines'))) el.textContent = t('weekly_deadlines');
-                    if(el.textContent.includes('Overview') || el.textContent.includes(t('task_overview'))) el.textContent = t('task_overview');
-                    if(el.textContent.includes('Preview') || el.textContent.includes(t('calendar_preview'))) el.textContent = t('calendar_preview');
+                    if(el.textContent.includes('Task Completion') || el.textContent.includes(t('task_completion'))) el.textContent = t('task_completion');
+                    if(el.textContent.includes('Weekly Deadlines') || el.textContent.includes(t('weekly_deadlines'))) el.textContent = t('weekly_deadlines');
+                    if(el.textContent.includes('Task Overview') || el.textContent.includes(t('task_overview'))) el.textContent = t('task_overview');
+                    if(el.textContent.includes('Calendar Preview') || el.textContent.includes(t('calendar_preview'))) el.textContent = t('calendar_preview');
                 });
 
                 // Render Weekly Deadlines
@@ -1138,7 +1132,7 @@
                 filterContainer.innerHTML = `
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="flex-grow">
-                            <label for="task-search-input" class="sr-only">Buscar Tareas</label>
+                            <label for="task-search-input" class="sr-only">Search Tasks</label>
                             <div class="relative">
                                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
                                 <input id="task-search-input" type="search" placeholder="${t('search_placeholder')}" class="w-full p-2 pl-10 rounded-lg" value="${state.taskSearchQuery || ''}">
@@ -1165,7 +1159,7 @@
                 const sortedTasks = filteredTasks.sort((a, b) => (a.priority || 'p3').localeCompare(b.priority || 'p3'));
 
                 if(sortedTasks.length === 0) {
-                    list.innerHTML = `<div class="card p-6 text-center text-gray-500">No hay tareas que coincidan con tus criterios.</div>`;
+                    list.innerHTML = `<div class="card p-6 text-center text-gray-500">No tasks match your criteria.</div>`;
                     return;
                 }
                 
@@ -1184,7 +1178,7 @@
                             <div class="flex justify-between items-start gap-2">
                                 <h3 class="font-bold text-lg ${task.completed ? 'line-through text-gray-500' : ''}">${task.title}</h3>
                                 <div class="flex items-center flex-shrink-0 gap-2">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.badge}">${statusInfo.text}</span>
+                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.badge}">${statusInfo.text}</span>
                                     <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${priorityInfo.badge}">
                                         <i data-lucide="${priorityInfo.icon}" class="w-3 h-3"></i>
                                         ${priorityInfo.text}
@@ -1215,23 +1209,23 @@
                 $('#add-project-from-view').innerHTML = `<i data-lucide="plus"></i> ${t('add_new_project')}`;
 
                 if(state.projects.length === 0) {
-                    list.innerHTML = `<div class="card p-6 text-center text-gray-500 col-span-full">Aún no hay proyectos. ¡Añade uno para empezar!</div>`;
+                    list.innerHTML = `<div class="card p-6 text-center text-gray-500 col-span-full">No projects yet. Add one to get started!</div>`;
                     return;
                 }
                 list.innerHTML = state.projects.map(p => `
                     <div class="card p-6 flex flex-col" data-project-id="${p.id}">
                         <div class="flex-grow">
                             <h3 class="font-bold text-lg mb-2 text-primary">${p.name}</h3>
-                            <p class="text-gray-600 dark:text-gray-300 text-sm">${p.description || 'Sin descripción.'}</p>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">${p.description || 'No description.'}</p>
                         </div>
                         <div class="mt-4 pt-4 border-t dark:border-gray-700 flex justify-end gap-2">
-                             <button class="project-kanban-btn p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full" title="Ver Kanban">
-                                 <i data-lucide="layout-grid" class="w-4 h-4"></i>
-                             </button>
-                            <button class="project-edit-btn p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full" title="Editar Proyecto">
+                             <button class="project-kanban-btn p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full" title="View Kanban">
+                                <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                            </button>
+                            <button class="project-edit-btn p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full" title="Edit Project">
                                 <i data-lucide="pencil" class="w-4 h-4"></i>
                             </button>
-                            <button class="project-delete-btn p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full" title="Eliminar Proyecto">
+                            <button class="project-delete-btn p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full" title="Delete Project">
                                 <i data-lucide="trash-2" class="w-4 h-4 text-red-500"></i>
                             </button>
                         </div>
@@ -1246,7 +1240,7 @@
                 $('#add-note-from-view').innerHTML = `<i data-lucide="plus"></i> ${t('add_quick_note')}`;
 
                 if(state.notes.length === 0) {
-                    list.innerHTML = `<div class="card p-6 text-center text-gray-500 col-span-full">Aún no hay notas. ¡Añade una para empezar!</div>`;
+                    list.innerHTML = `<div class="card p-6 text-center text-gray-500 col-span-full">No notes yet. Add one to get started!</div>`;
                     return;
                 }
                 list.innerHTML = state.notes.map(n => `
@@ -1556,9 +1550,9 @@
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                              <div>
-                                 <label class="font-semibold block mb-1">${t('due_date')}</label>
-                                 <input name="dueDate" type="date" class="w-full p-2" value="${task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : ''}">
-                             </div>
+                                <label class="font-semibold block mb-1">${t('due_date')}</label>
+                                <input name="dueDate" type="date" class="w-full p-2" value="${task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : ''}">
+                            </div>
                             <div>
                                 <label class="font-semibold block mb-1">${t('project')}</label>
                                 <select name="projectId" class="w-full p-2">
@@ -1569,32 +1563,32 @@
                         </div>
                          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                              <div>
-                                 <label class="font-semibold block mb-1">${t('priority')}</label>
-                                 <select name="priority" class="w-full p-2">
-                                    <option value="p1" ${task.priority === 'p1' ? 'selected' : ''}>🔥 ${t('highest')}</option>
-                                    <option value="p2" ${task.priority === 'p2' ? 'selected' : ''}>⚠️ ${t('high')}</option>
-                                    <option value="p3" ${!task.priority || task.priority === 'p3' ? 'selected':''}>🔵 ${t('medium')}</option>
-                                    <option value="p4" ${task.priority === 'p4' ? 'selected' : ''}>⬇️ ${t('low')}</option>
-                                 </select>
-                             </div>
+                                <label class="font-semibold block mb-1">${t('priority')}</label>
+                                <select name="priority" class="w-full p-2">
+                                   <option value="p1" ${task.priority === 'p1' ? 'selected' : ''}>🔥 ${t('highest')}</option>
+                                   <option value="p2" ${task.priority === 'p2' ? 'selected' : ''}>⚠️ ${t('high')}</option>
+                                   <option value="p3" ${!task.priority || task.priority === 'p3' ? 'selected':''}>🔵 ${t('medium')}</option>
+                                   <option value="p4" ${task.priority === 'p4' ? 'selected' : ''}>⬇️ ${t('low')}</option>
+                                </select>
+                            </div>
                             <div>
                                 <label class="font-semibold block mb-1">${t('urgency')}</label>
                                 <select name="urgency" class="w-full p-2">
-                                    <option value="true" ${task.urgency ? 'selected' : ''}>⏰ ${t('urgent')}</option>
-                                    <option value="false" ${!task.urgency ? 'selected' : ''}>${t('not_urgent')}</option>
+                                   <option value="true" ${task.urgency ? 'selected' : ''}>⏰ ${t('urgent')}</option>
+                                   <option value="false" ${!task.urgency ? 'selected' : ''}>${t('not_urgent')}</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="font-semibold block mb-1">${t('importance')}</label>
                                 <select name="importance" class="w-full p-2">
-                                    <option value="true" ${task.importance ? 'selected' : ''}>⚠️ ${t('important')}</option>
-                                    <option value="false" ${!task.importance ? 'selected' : ''}>${t('not_important')}</option>
+                                   <option value="true" ${task.importance ? 'selected' : ''}>⚠️ ${t('important')}</option>
+                                   <option value="false" ${!task.importance ? 'selected' : ''}>${t('not_important')}</option>
                                 </select>
                             </div>
                         </div>
                          <div>
                             <label class="font-semibold block mb-1">${t('tags_label')}</label>
-                            <input name="tags" class="w-full p-2" placeholder="ej. trabajo, personal, seguimiento" value="${(task.tags || []).join(', ')}">
+                            <input name="tags" class="w-full p-2" placeholder="e.g. work, personal, follow-up" value="${(task.tags || []).join(', ')}">
                         </div>
                         <div class="flex justify-end gap-4 pt-4">
                             <button type="button" id="modal-cancel" class="btn bg-gray-200 dark:bg-gray-600 dark:text-white">${t('cancel')}</button>
@@ -1723,7 +1717,7 @@
                 if (iframeUrl) {
                     if (contentIframe) contentIframe.src = iframeUrl;
                     const iframeTitleEl = $('#iframe-title');
-                    if (iframeTitleEl) iframeTitleEl.textContent = iframeTitle || t('ai_assistant'); // Use translation
+                    if (iframeTitleEl) iframeTitleEl.textContent = iframeTitle || 'External Content';
                 }
 
                 state.activeView = view;
@@ -1820,11 +1814,11 @@
                 }
 
                 if (e.target.closest('.note-delete-btn')) {
-                         showConfirmationModal(t('delete'), t('delete_note_confirm'), async () => {
-                         await dbService.delete('notes', noteId);
-                         await refreshState();
-                         render();
-                     });
+                       showConfirmationModal(t('delete'), t('delete_note_confirm'), async () => {
+                        await dbService.delete('notes', noteId);
+                        await refreshState();
+                        render();
+                    });
                 }
             }
             
@@ -1871,8 +1865,8 @@
                         $('#primary-color-value').textContent = e.target.value;
                     });
                     secondaryPicker.addEventListener('input', (e) => {
-                        applyColors(state.primaryColor, e.target.value);
-                        $('#secondary-color-value').textContent = e.target.value;
+                         applyColors(state.primaryColor, e.target.value);
+                         $('#secondary-color-value').textContent = e.target.value;
                     });
 
                     // Save button
@@ -1910,7 +1904,7 @@
                         </div>
                     `).join('');
                 } else {
-                    modalContent = `<p class="text-gray-500 text-center p-4">No tienes tareas con fechas de vencimiento para sincronizar.</p>`;
+                    modalContent = `<p class="text-gray-500 text-center p-4">You have no tasks with due dates to sync.</p>`;
                 }
                 openModal(t('sync_google'), modalContent);
             }
@@ -1933,7 +1927,7 @@
                 url.searchParams.set('action', 'TEMPLATE');
                 url.searchParams.set('text', task.title);
                 url.searchParams.set('dates', `${googleDate}/${googleDate}`); // All-day event
-                url.searchParams.set('details', task.description || 'Tarea de Sede Central');
+                url.searchParams.set('details', task.description || 'Task from Headquarters');
                 
                 window.open(url.toString(), '_blank');
             }
@@ -2145,14 +2139,13 @@ END:VEVENT
 
             // --- INITIALIZATION ---
             async function init() {
-                // Load Language (defaults to 'es' set in state if not saved)
-                const savedLang = localStorage.getItem('headquarters-lang');
-                if (savedLang) state.language = savedLang;
-
                 // Set initial theme and colors
                 loadColorsFromStorage();
                 
-                // Load Theme
+                // Load Language
+                const savedLang = localStorage.getItem('headquarters-lang');
+                if (savedLang) state.language = savedLang;
+
                 const theme = localStorage.getItem('theme');
                 const isDark = theme === 'dark' || (theme === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
                 if (isDark) {
@@ -2173,7 +2166,7 @@ END:VEVENT
                     render();
                 } catch(e) {
                     console.error("Initialization failed", e);
-                    $('main').innerHTML = `<div class="text-red-500 p-8">Error: No se pudo iniciar la aplicación. Por favor, revisa la consola para más detalles.</div>`;
+                    $('main').innerHTML = `<div class="text-red-500 p-8">Error: Could not initialize the application. Please check the console for details.</div>`;
                 }
             }
 
