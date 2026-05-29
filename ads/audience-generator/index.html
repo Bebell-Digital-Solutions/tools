@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Constructor de Audiencia para Ads</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Favicon -->     
+<link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/4aaeac9c1efc99109149caec0ad9a42e29f886a4.png">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Poppins', 'sans-serif'] },
+      colors: {
+        sys: {
+          bg: '#f2f1fb',
+          primary: '#8b84f5',
+          secondary: '#e07dd1',
+          title: '#4b4998',
+          text: '#707070',
+          card: '#ffffff',
+          success: '#10b981', 
+          pending: '#9ca3af'  
+        }
+      },
+      boxShadow: {
+        'soft': '0 10px 40px -10px rgba(139, 132, 245, 0.1)',
+        'glow': '0 0 15px rgba(139, 132, 245, 0.4)'
+      }
+    }
+  }
+}
+</script>
+
+<style>
+body { background:#f2f1fb; font-family:Poppins; }
+
+.gradient-bg {
+  background: linear-gradient(135deg, #8b84f5, #e07dd1);
+}
+
+/* Ocultar barra de scroll para un diseño más limpio */
+.hide-scroll::-webkit-scrollbar {
+  display: none;
+}
+.hide-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Estilos para inputs del form */
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(139, 132, 245, 0.2);
+  background: #fdfdff;
+  color: #4b4998;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  outline: none;
+}
+.form-input:focus {
+  border-color: #8b84f5;
+  box-shadow: 0 0 0 3px rgba(139, 132, 245, 0.1);
+  background: #ffffff;
+}
+.form-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #707070;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+</style>
+</head>
+
+<body>
+
+<main class="max-w-7xl mx-auto px-6 md:px-10 py-10">
+
+  <!-- CONSTRUCTOR DE AUDIENCIAS (Mejora Clave para Ads) -->
+  <section class="mb-10">
+    <div class="bg-sys-card p-6 md:p-10 rounded-3xl shadow-soft border border-sys-primary/20 relative overflow-hidden">
+      
+      <!-- Decoración -->
+      <div class="absolute -top-32 -right-32 w-64 h-64 bg-sys-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div class="relative z-10">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center text-white shadow-md shrink-0">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-sys-title text-2xl">Constructor de Audiencia para Ads</h3>
+              <p class="text-sm text-sys-text mt-1 max-w-2xl">Completa este perfil. Al guardarlo, se vinculará a tu sistema y servirá como input directo para tus próximas campañas en Meta y TikTok.</p>
+            </div>
+          </div>
+        </div>
+
+        <form id="adsForm" onsubmit="generarAudiencia(event)" class="space-y-10">
+          
+          <!-- BLOQUE 1: Perfil básico -->
+          <div class="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
+            <h4 class="text-lg font-bold text-sys-title mb-5 flex items-center gap-2 border-b border-gray-200 pb-3">
+              <span class="bg-sys-primary text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+              Perfil Básico <span class="text-xs font-normal text-sys-text ml-2">(Lo esencial para segmentar)</span>
+            </h4>
+            
+            <div class="mb-5">
+              <label class="form-label">Nombre del Buyer Persona</label>
+              <input type="text" id="f_nombre" class="form-input" placeholder="Ej: Mujer emprendedora 25-34 interesada en ecommerce" required>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div>
+                <label class="form-label">Edad (Rango)</label>
+                <select id="f_edad" class="form-input cursor-pointer" required>
+                  <option value="" disabled selected>Selecciona rango...</option>
+                  <option value="18-24">18 - 24 años</option>
+                  <option value="25-34">25 - 34 años</option>
+                  <option value="35-44">35 - 44 años</option>
+                  <option value="45-54">45 - 54 años</option>
+                  <option value="55-65+">55 - 65+ años</option>
+                  <option value="Amplio (18-65+)">Amplio (18-65+)</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Género</label>
+                <select id="f_genero" class="form-input cursor-pointer" required>
+                  <option value="Todos">Todos</option>
+                  <option value="Hombres">Hombres</option>
+                  <option value="Mujeres">Mujeres</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">País / Ciudad</label>
+                <input type="text" id="f_ubicacion" class="form-input" placeholder="Ej: México, España, LATAM..." required>
+              </div>
+              <div>
+                <label class="form-label">Nivel de Ingresos</label>
+                <select id="f_ingresos" class="form-input cursor-pointer" required>
+                  <option value="" disabled selected>Selecciona nivel...</option>
+                  <option value="Medio-Bajo">Medio-Bajo</option>
+                  <option value="Medio">Medio (Promedio)</option>
+                  <option value="Medio-Alto">Medio-Alto</option>
+                  <option value="Alto (Premium)">Alto (Premium)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- BLOQUE 2: Psicología del cliente -->
+          <div class="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
+            <h4 class="text-lg font-bold text-sys-title mb-5 flex items-center gap-2 border-b border-gray-200 pb-3">
+              <span class="bg-sys-primary text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+              Psicología del Cliente <span class="text-xs font-normal text-sys-text ml-2">(Esto es ORO para tu Copy)</span>
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+              <div>
+                <label class="form-label">Problema Principal</label>
+                <textarea id="f_problema" rows="2" class="form-input resize-none" placeholder="¿Qué le duele o molesta actualmente?" required></textarea>
+              </div>
+              <div>
+                <label class="form-label">Frustraciones</label>
+                <textarea id="f_frustraciones" rows="2" class="form-input resize-none" placeholder="¿Qué ha intentado antes que no le funcionó?"></textarea>
+              </div>
+              <div>
+                <label class="form-label">Deseo Principal</label>
+                <textarea id="f_deseo" rows="2" class="form-input resize-none" placeholder="¿Qué quiere lograr o cómo quiere sentirse?" required></textarea>
+              </div>
+              <div>
+                <label class="form-label">Motivación de Compra</label>
+                <textarea id="f_motivacion" rows="2" class="form-input resize-none" placeholder="Ej: Ahorrar tiempo, ganar estatus, sentirse seguro..."></textarea>
+              </div>
+            </div>
+            <div>
+              <label class="form-label text-orange-600 flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                Objeciones Principales (Clave)
+              </label>
+              <textarea id="f_objeciones" rows="2" class="form-input resize-none border-orange-200 focus:border-orange-400 focus:ring-orange-100" placeholder="Ej: 'Es muy caro', 'No confío en la marca', 'No tengo tiempo para usarlo'..." required></textarea>
+            </div>
+          </div>
+
+          <!-- BLOQUE 3: Segmentación para Ads -->
+          <div class="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
+            <h4 class="text-lg font-bold text-sys-title mb-5 flex items-center gap-2 border-b border-gray-200 pb-3">
+              <span class="bg-sys-primary text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span>
+              Segmentación Directa <span class="text-xs font-normal text-sys-text ml-2">(Para configurar tus campañas)</span>
+            </h4>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- Left Col -->
+              <div class="space-y-5">
+                <div>
+                  <label class="form-label">Intereses Específicos (Separados por coma)</label>
+                  <input type="text" id="f_intereses" class="form-input" placeholder="Ej: Shopify, Maquillaje, Fitness, Inversiones..." required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="form-label">Estado Laboral</label>
+                    <select id="f_laboral" class="form-input cursor-pointer">
+                      <option value="Cualquiera">Cualquiera</option>
+                      <option value="Empleado">Empleado</option>
+                      <option value="Independiente / Freelance">Independiente</option>
+                      <option value="Emprendedor / Dueño">Emprendedor</option>
+                      <option value="Estudiante">Estudiante</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="form-label">Dispositivo</label>
+                    <select id="f_dispositivo" class="form-input cursor-pointer">
+                      <option value="Todos (Automático)">Todos</option>
+                      <option value="Solo Móvil">Solo Móvil</option>
+                      <option value="Solo Desktop">Solo Desktop</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label class="form-label">Ocupación / Industria (Opcional)</label>
+                  <input type="text" id="f_ocupacion" class="form-input" placeholder="Ej: Marketing, Salud, Comercio electrónico...">
+                </div>
+              </div>
+
+              <!-- Right Col -->
+              <div class="space-y-6">
+                <div>
+                  <label class="form-label">Comportamientos Clave</label>
+                  <div class="space-y-2 mt-2">
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                      <input type="checkbox" class="cb-comportamiento w-5 h-5 rounded border-gray-300 text-sys-primary focus:ring-sys-primary/30" value="Compradores online (Engaged Shoppers)">
+                      <span class="text-sm text-sys-text group-hover:text-sys-title transition-colors">Compradores online (Engaged Shoppers)</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                      <input type="checkbox" class="cb-comportamiento w-5 h-5 rounded border-gray-300 text-sys-primary focus:ring-sys-primary/30" value="Interactúan con anuncios">
+                      <span class="text-sm text-sys-text group-hover:text-sys-title transition-colors">Suelen interactuar con anuncios</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                      <input type="checkbox" class="cb-comportamiento w-5 h-5 rounded border-gray-300 text-sys-primary focus:ring-sys-primary/30" value="Viajeros frecuentes">
+                      <span class="text-sm text-sys-text group-hover:text-sys-title transition-colors">Viajeros frecuentes</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="form-label">¿Dónde encontrar a este cliente? (Plataformas)</label>
+                  <div class="flex flex-wrap gap-3 mt-2">
+                    <label class="cursor-pointer">
+                      <input type="checkbox" class="cb-plataforma peer sr-only" value="Instagram">
+                      <div class="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 peer-checked:bg-sys-secondary/10 peer-checked:border-sys-secondary peer-checked:text-sys-secondary transition-all hover:bg-gray-50">Instagram</div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="checkbox" class="cb-plataforma peer sr-only" value="TikTok">
+                      <div class="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 peer-checked:bg-gray-900 peer-checked:border-gray-900 peer-checked:text-white transition-all hover:bg-gray-50">TikTok</div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="checkbox" class="cb-plataforma peer sr-only" value="Facebook">
+                      <div class="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600 transition-all hover:bg-gray-50">Facebook</div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="checkbox" class="cb-plataforma peer sr-only" value="YouTube">
+                      <div class="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 peer-checked:bg-red-50 peer-checked:border-red-500 peer-checked:text-red-600 transition-all hover:bg-gray-50">YouTube</div>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="checkbox" class="cb-plataforma peer sr-only" value="Google Search">
+                      <div class="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 peer-checked:bg-green-50 peer-checked:border-green-500 peer-checked:text-green-600 transition-all hover:bg-gray-50">Google</div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTÓN SUBMIT PRINCIPAL -->
+          <div class="pt-4 flex justify-center">
+            <button type="submit" id="btn-submit" class="w-full md:w-auto inline-flex items-center justify-center gap-3 gradient-bg text-white font-bold py-4 px-8 rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-lg">
+              Generar Audiencia Lista para Anuncios 🚀
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+          </div>
+        </form>
+
+        <!-- RESULTADO: AUDIENCIA GENERADA (Oculto por defecto) -->
+        <div id="resultado-audiencia" class="hidden mt-10 p-1 bg-gradient-to-br from-sys-primary to-sys-secondary rounded-2xl">
+          <div class="bg-white rounded-xl p-6 md:p-8">
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
+              <div>
+                <h3 class="text-xl font-bold text-sys-title flex items-center gap-2">
+                  <svg class="w-6 h-6 text-sys-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  ¡Audiencia Guardada en el Dashboard!
+                </h3>
+                <p class="text-sm text-sys-text mt-1">Copia este resumen para configurarlo directamente en tu Business Manager de Meta o TikTok Ads.</p>
+              </div>
+              <button onclick="copiarAudiencia()" id="btn-copiar" class="shrink-0 inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-sys-title font-bold py-2 px-4 rounded-lg transition-colors text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                Copiar Datos
+              </button>
+            </div>
+
+            <!-- Contenedor del texto a copiar -->
+            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 relative">
+              <pre id="texto-audiencia" class="text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed"></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Lógica para Generar Audiencia (Mejora PRO)
+  function generarAudiencia(e) {
+    e.preventDefault();
+
+    // Recopilar datos básicos
+    const nombre = document.getElementById('f_nombre').value;
+    const edad = document.getElementById('f_edad').value;
+    const genero = document.getElementById('f_genero').value;
+    const ubicacion = document.getElementById('f_ubicacion').value;
+    const ingresos = document.getElementById('f_ingresos').value;
+
+    // Recopilar psicología
+    const problema = document.getElementById('f_problema').value;
+    const frustraciones = document.getElementById('f_frustraciones').value;
+    const deseo = document.getElementById('f_deseo').value;
+    const motivacion = document.getElementById('f_motivacion').value;
+    const objeciones = document.getElementById('f_objeciones').value;
+
+    // Recopilar segmentación
+    const intereses = document.getElementById('f_intereses').value;
+    const interesesArray = intereses.split(',').map(i => i.trim());
+    const laboral = document.getElementById('f_laboral').value;
+    const ocupacion = document.getElementById('f_ocupacion').value;
+    const dispositivo = document.getElementById('f_dispositivo').value;
+
+    // Recopilar Checkboxes
+    const comportamientos = Array.from(document.querySelectorAll('.cb-comportamiento:checked')).map(cb => cb.value);
+    const plataformas = Array.from(document.querySelectorAll('.cb-plataforma:checked')).map(cb => cb.value);
+
+    // Lógica de recomendación de campaña
+    let recomendacion = "";
+    if (plataformas.includes("TikTok")) {
+      recomendacion = "Recomendación: Empieza con campaña de video corto en TikTok.";
+    } else if (plataformas.includes("Instagram") || plataformas.includes("Facebook")) {
+      recomendacion = "Recomendación: Empieza con campaña de tráfico o conversiones en Meta Ads.";
+    } else if (plataformas.includes("Google Search") || plataformas.includes("YouTube")) {
+      recomendacion = "Recomendación: Empieza con tráfico de intención en Google o YouTube.";
+    } else {
+      recomendacion = "Recomendación: Selecciona al menos una plataforma destino para poder darte sugerencias de campaña.";
+    }
+
+    // Formatear el texto de salida para copiar y pegar fácilmente
+    const resumen = `🎯 SEGMENTACIÓN LISTA PARA ADS
+-----------------------------------
+👤 Buyer Persona: ${nombre}
+
+📍 PERFIL BÁSICO (Configuración Meta/TikTok)
+- Edad: ${edad}
+- Género: ${genero}
+- Ubicación: ${ubicacion}
+- Ingresos: ${ingresos}
+
+🔎 SEGMENTACIÓN DETALLADA
+- Intereses a probar: ${interesesArray.join(' | ')}
+- Comportamientos: ${comportamientos.length > 0 ? comportamientos.join(', ') : 'Ninguno seleccionado'}
+- Perfil Laboral: ${laboral}
+- Ocupación/Industria: ${ocupacion || 'No especificada'}
+- Dispositivos: ${dispositivo}
+- Plataformas destino: ${plataformas.length > 0 ? plataformas.join(', ') : 'Ninguna seleccionada'}
+
+🧠 ÁNGULOS PARA COPY / CREATIVOS (Tus Anuncios)
+- Dolor a atacar: "${problema}"
+- Frustraciones previas: "${frustraciones || 'No especificadas'}"
+- Deseo a vender: "${deseo}"
+- Motivación profunda: "${motivacion || 'No especificada'}"
+- Objeciones a derribar: "${objeciones}"
+
+📈 RECOMENDACIÓN INICIAL
+${recomendacion}
+-----------------------------------
+Guardado exitosamente en el Dashboard.`;
+
+    // Mostrar el resultado en el DOM
+    document.getElementById('texto-audiencia').textContent = resumen;
+    
+    // Animar la aparición
+    const resultDiv = document.getElementById('resultado-audiencia');
+    resultDiv.classList.remove('hidden');
+    
+    // Cambiar estado del botón principal para indicar éxito
+    const btnSubmit = document.getElementById('btn-submit');
+    btnSubmit.innerHTML = '¡Guardado y Generado! ✅';
+    btnSubmit.classList.replace('gradient-bg', 'bg-sys-success');
+    
+    // Scroll suave hacia el resultado
+    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Enviar a Google Sheets/Backend iría aquí en un futuro
+    console.log("Datos listos para enviar al backend:", {
+      nombre, edad, genero, ubicacion, ingresos,
+      problema, frustraciones, deseo, motivacion, objeciones,
+      intereses: interesesArray, laboral, ocupacion, dispositivo,
+      comportamientos, plataformas
+    });
+  }
+
+  function copiarAudiencia() {
+    const texto = document.getElementById('texto-audiencia').textContent;
+    const btn = document.getElementById('btn-copiar');
+    
+    // Usamos el execCommand fallback para máxima compatibilidad si writeText falla por iframe restrictions
+    const textarea = document.createElement('textarea');
+    textarea.value = texto;
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+        document.execCommand('copy');
+        const textoOriginal = btn.innerHTML;
+        btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> ¡Copiado!`;
+        btn.classList.add('bg-green-100', 'text-green-700');
+        btn.classList.remove('bg-gray-100', 'text-sys-title');
+        
+        setTimeout(() => {
+          btn.innerHTML = textoOriginal;
+          btn.classList.remove('bg-green-100', 'text-green-700');
+          btn.classList.add('bg-gray-100', 'text-sys-title');
+        }, 3000);
+    } catch (err) {
+        console.error('Error al copiar: ', err);
+    }
+    
+    document.body.removeChild(textarea);
+  }
+</script>
+
+</body>
+</html>
